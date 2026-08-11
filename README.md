@@ -49,12 +49,12 @@
             );
         }
         function App() {
-            const [state, setState] = useState(() => { try { const local = localStorage.getItem('site_app_data_v5'); return local ? JSON.parse(local) : INITIAL_STATE; } catch (e) { return INITIAL_STATE; } });
+            const [state, setState] = useState(() => { try { const local = localStorage.getItem('site_app_data_v6'); return local ? JSON.parse(local) : INITIAL_STATE; } catch (e) { return INITIAL_STATE; } });
             const [view, setView] = useState('welcome'); const [toast, setToast] = useState(null); const [pendingSignup, setPendingSignup] = useState(null); const [pendingResetPhone, setPendingResetPhone] = useState(''); const [selectedProduct, setSelectedProduct] = useState(null); const [searchTerm, setSearchTerm] = useState('');
             const [schoolGradeFilter, setSchoolGradeFilter] = useState('همه');
             const [aiCategoryFilter, setAiCategoryFilter] = useState('همه');
             
-            useEffect(() => { try { localStorage.setItem('site_app_data_v5', JSON.stringify(state)); } catch (e) { console.error(e); } }, [state]);
+            useEffect(() => { try { localStorage.setItem('site_app_data_v6', JSON.stringify(state)); } catch (e) { console.error(e); } }, [state]);
             const showToast = (msg, type = 'success') => setToast({ msg, type });
             
             const ADMIN_USER = "محمد معين سليم صاحب اینجا هست"; const ADMIN_PASS = "M9!vR2#qL7@xP4$z";
@@ -113,7 +113,7 @@
                         {view === 'school' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-emerald-600 text-white p-8 rounded-3xl mb-8 flex justify-between items-center">
-                                    <div><h1 className="text-2xl font-black">📚 درس و مدرسه</h1><p className="text-xs opacity-90 mt-1">جزوات و نمونه سوالات تحصیلی</p></div>
+                                    <div><h1 className="text-2xl font-black">📚 درس و مدرسه</h1><p className="text-xs opacity-90 mt-1">جزوات و نمونه سوالات تحصیلی پایه‌های چهارم تا نهم</p></div>
                                     <button onClick={() => setView('school_chat')} className="bg-white text-emerald-800 px-4 py-2 rounded-xl font-bold">💬 برنامه‌ریزی اختصاصی</button>
                                 </div>
                                 <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2 border-b">
@@ -129,7 +129,7 @@
                         {view === 'ai' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-purple-600 text-white p-8 rounded-3xl mb-8 flex justify-between items-center">
-                                    <div><h1 className="text-2xl font-black">🤖 دنیای AI & هوش مصنوعی</h1><p className="text-xs opacity-90 mt-1">پرامپت‌ها و آموزش‌های ویدیویی</p></div>
+                                    <div><h1 className="text-2xl font-black">🤖 دنیای AI & هوش مصنوعی</h1><p className="text-xs opacity-90 mt-1">پرامپت‌ها، دوره‌ها و آموزش InShot</p></div>
                                     <button onClick={() => setView('ai_chat')} className="bg-white text-purple-800 px-4 py-2 rounded-xl font-bold">✨ پرامپت اختصاصی</button>
                                 </div>
                                 <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2 border-b">
