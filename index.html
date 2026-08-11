@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آکادمی برتر | آموزش، فایل و هوش مصنوعی</title>
+    <title>سامانه جامع آموزش، فایل و هوش مصنوعی</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -35,8 +35,10 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
         const INITIAL_STATE = {
-            currentUser: null, users: [], otpRequests: [], schoolPacks: [], aiPacks: [],
-            orders: [], messages: [], reviews: []
+            currentUser: null, users: [], otpRequests: [],
+            schoolPacks: [],
+            aiPacks: [],
+            orders: [], messages: [], reviews: [], paymentGateway: { active: false, provider: 'zarinpal', merchantId: '' }
         };
         function Toast({ msg, type, onClose }) {
             useEffect(() => { const timer = setTimeout(onClose, 3500); return () => clearTimeout(timer); }, []);
@@ -47,20 +49,49 @@
             );
         }
         function App() {
-            const [state, setState] = useState(() => { try { const local = localStorage.getItem('academy_bartar_v1'); return local ? JSON.parse(local) : INITIAL_STATE; } catch (e) { return INITIAL_STATE; } });
-            const [view, setView] = useState('welcome'); const [toast, setToast] = useState(null); const [pendingSignup, setPendingSignup] = useState(null); const [selectedProduct, setSelectedProduct] = useState(null); const [searchTerm, setSearchTerm] = useState('');
+            const [state, setState] = useState(() => { try { const local = localStorage.getItem('site_app_data_v6'); return local ? JSON.parse(local) : INITIAL_STATE; } catch (e) { return INITIAL_STATE; } });
+            const [view, setView] = useState('welcome'); const [toast, setToast] = useState(null); const [pendingSignup, setPendingSignup] = useState(null); const [pendingResetPhone, setPendingResetPhone] = useState(''); const [selectedProduct, setSelectedProduct] = useState(null); const [searchTerm, setSearchTerm] = useState('');
             const [schoolGradeFilter, setSchoolGradeFilter] = useState('همه');
             const [aiCategoryFilter, setAiCategoryFilter] = useState('همه');
             
-            useEffect(() => { try { localStorage.setItem('academy_bartar_v1', JSON.stringify(state)); } catch (e) { console.error(e); } }, [state]);
+            useEffect(() => { try { localStorage.setItem('site_app_data_v6', JSON.stringify(state)); } catch (e) { console.error(e); } }, [state]);
             const showToast = (msg, type = 'success') => setToast({ msg, type });
             
-            const ADMIN_USER = "admin"; const ADMIN_PASS = "admin123";
+            // بازگرداندن رمز عبور امنیتی و اصلی خودت
+            const ADMIN_USER = "محمد معين سليم صاحب اینجا هست"; const ADMIN_PASS = "M9!vR2#qL7@xP4$z";
 
+            const handleSignupStep1 = (formData) => {
+                if (state.users.some(u => u.phone === formData.phone) || state.users.some(u => u.username === formData.username)) { showToast('مشخصات تکراری است.', 'error'); return; }
+                if (formData.password !== formData.confirmPassword) { showToast('رمزها یکسان نیستند.', 'error'); return; }
+                const code = Math.floor(100000 + Math.random() * 900000).toString();
+                setState(prev => ({ ...prev, otpRequests: [{ id: Date.now().toString(), phone: formData.phone, type: 'signup', code, formData, createdAt: new Date().toLocaleTimeString('fa-IR'), status: 'pending' }, ...prev.otpRequests] }));
+                setPendingSignup({ ...formData, code }); setView('otp_verify'); showToast('کد صادر شد.');
+            };
+            const handleVerifyOtp = (inputCode) => {
+                if (pendingSignup && inputCode === pendingSignup.code) {
+                    const newUser = { id: Date.now().toString(), name: pendingSignup.name, phone: pendingSignup.phone, username: pendingSignup.username, passwordHash: 'hash_' + pendingSignup.password, createdAt: new Date().toLocaleDateString('fa-IR'), orderCount: 0 };
+                    setState(prev => ({ ...prev, users: [...prev.users, newUser], currentUser: newUser })); setPendingSignup(null); setView('welcome_user');
+                } else if (pendingResetPhone) {
+                    const req = state.otpRequests.find(r => r.phone === pendingResetPhone && r.type === 'reset');
+                    if (req && req.code === inputCode) setView('new_password'); else showToast('کد اشتباه است.', 'error');
+                } else { showToast('کد اشتباه است.', 'error'); }
+            };
             const handleLogin = (username, password) => {
-                if (username === ADMIN_USER && password === ADMIN_PASS) { setState(prev => ({ ...prev, currentUser: { username: ADMIN_USER, name: 'مدیر کل', role: 'admin' } })); setView('admin_dashboard'); showToast('خوش آمدید مدیر محترم 👑'); return; }
+                if (username.trim() === ADMIN_USER.trim() && password === ADMIN_PASS) { setState(prev => ({ ...prev, currentUser: { username: ADMIN_USER, name: 'مدیر کل', role: 'admin' } })); setView('admin_dashboard'); showToast('خوش آمدید مدیر محترم 👑'); return; }
                 const user = state.users.find(u => u.username === username && u.passwordHash === 'hash_' + password);
                 if (user) { setState(prev => ({ ...prev, currentUser: { ...user, role: 'user' } })); setView('school'); showToast(`خوش آمدید ${user.name}`); } else { showToast('❌ نام کاربری یا رمز عبور اشتباه است.', 'error'); }
+            };
+            const handleForgotPassword = (phone) => {
+                const user = state.users.find(u => u.phone === phone); if (!user) { showToast('کاربر یافت نشد.', 'error'); return; }
+                const code = Math.floor(100000 + Math.random() * 900000).toString();
+                setState(prev => ({ ...prev, otpRequests: [{ id: Date.now().toString(), phone, type: 'reset', code, createdAt: new Date().toLocaleTimeString('fa-IR'), status: 'pending' }, ...prev.otpRequests] }));
+                setPendingResetPhone(phone); setView('otp_verify'); showToast('کد صادر شد.');
+            };
+            const handleSaveNewPassword = (newPass) => { setState(prev => ({ ...prev, users: prev.users.map(u => u.phone === pendingResetPhone ? { ...u, passwordHash: 'hash_' + newPass } : u) })); showToast('رمز تغییر یافت.'); setPendingResetPhone(''); setView('login'); };
+            const handleBuyProduct = (product) => {
+                if (!state.currentUser) { showToast('لطفا وارد شوید.', 'error'); setView('login'); return; }
+                setState(prev => ({ ...prev, orders: [{ id: 'ORD-' + Math.floor(1000 + Math.random() * 9000), username: state.currentUser.username, title: product.title, price: product.price, date: new Date().toLocaleDateString('fa-IR'), status: 'پرداخت شده', fileName: product.fileName || 'دانلود.zip', fileUrl: product.fileUrl || '#' }, ...prev.orders], users: prev.users.map(u => u.username === state.currentUser.username ? { ...u, orderCount: (u.orderCount || 0) + 1 } : u) }));
+                showToast('✅ پرداخت با موفقیت انجام شد!'); setView('user_panel');
             };
 
             const filteredSchoolPacks = state.schoolPacks.filter(p => schoolGradeFilter === 'همه' || p.grade === schoolGradeFilter);
@@ -69,58 +100,110 @@
             return (
                 <div className="min-h-screen flex flex-col justify-between">
                     <div>
-                        <header className="sticky top-0 z-40 glass border-b border-slate-200 shadow-sm"><div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between"><div className="flex items-center gap-6"><button onClick={() => setView('welcome')} className="text-xl font-black bg-gradient-to-r from-indigo-600 to-sky-500 bg-clip-text text-transparent">آکادمی برتر</button><nav className="hidden md:flex items-center gap-2"><button onClick={() => setView('school')} className="px-3 py-2 text-sm font-semibold">📚 درس و مدرسه</button><button onClick={() => setView('ai')} className="px-3 py-2 text-sm font-semibold">🤖 دنیای AI</button></nav></div><div>{state.currentUser ? <div className="flex items-center gap-2">{state.currentUser.role === 'admin' ? <button onClick={() => setView('admin_dashboard')} className="bg-amber-50 text-slate-900 px-4 py-2 rounded-xl text-sm font-bold shadow">🛡️ پنل مدیریت</button> : <button onClick={() => setView('user_panel')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold">👤 پنل کاربری</button>}<button onClick={() => { setState(prev => ({ ...prev, currentUser: null })); setView('welcome'); }} className="text-rose-500 p-2 text-sm font-bold">خروج</button></div> : <div className="flex items-center gap-2"><button onClick={() => setView('login')} className="text-slate-700 text-sm font-semibold px-2">ورود</button></div>}</div></div></header>
+                        <header className="sticky top-0 z-40 glass border-b border-slate-200 shadow-sm"><div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between"><div className="flex items-center gap-6"><button onClick={() => setView('welcome')} className="text-xl font-black bg-gradient-to-r from-indigo-600 to-sky-500 bg-clip-text text-transparent">آکادمی هوش برتر</button><nav className="hidden md:flex items-center gap-2"><button onClick={() => setView('school')} className="px-3 py-2 text-sm font-semibold">📚 درس و مدرسه</button><button onClick={() => setView('ai')} className="px-3 py-2 text-sm font-semibold">🤖 دنیای AI</button></nav></div><div>{state.currentUser ? <div className="flex items-center gap-2">{state.currentUser.role === 'admin' ? <button onClick={() => setView('admin_dashboard')} className="bg-amber-50 text-slate-900 px-4 py-2 rounded-xl text-sm font-bold shadow">🛡️ پنل مدیریت</button> : <button onClick={() => setView('user_panel')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold">👤 پنل کاربری</button>}<button onClick={() => { setState(prev => ({ ...prev, currentUser: null })); setView('welcome'); }} className="text-rose-500 p-2 text-sm font-bold">خروج</button></div> : <div className="flex items-center gap-2"><button onClick={() => setView('login')} className="text-slate-700 text-sm font-semibold px-2">ورود</button><button onClick={() => setView('signup')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">ثبت‌نام</button></div>}</div></div></header>
                         
-                        {view === 'welcome' && <div className="max-w-5xl mx-auto px-4 py-16 text-center"><h1 className="text-4xl font-black text-slate-900 mb-6">به آکادمی برتر خوش آمدید ✨</h1><div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div onClick={() => setView('school')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-emerald-500 transition"><div className="text-3xl mb-4">📚</div><h2 className="text-2xl font-bold mb-2">درس و مدرسه</h2><p className="text-slate-500 text-sm">پایه‌های چهارم تا نهم (جزوه، آزمون، شب امتحان)</p></div><div onClick={() => setView('ai')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-purple-500 transition"><div className="text-3xl mb-4">🤖</div><h2 className="text-2xl font-bold mb-2">دنیای AI</h2><p className="text-slate-500 text-sm">پرامپت‌ها، آموزش هوش مصنوعی و دوره InShot</p></div></div></div>}
-                        {view === 'login' && <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border"><h2 className="text-2xl font-bold text-center mb-6">ورود مدیر</h2><form onSubmit={(e) => { e.preventDefault(); handleLogin(e.target.username.value, e.target.password.value); }} className="space-y-4"><input required name="username" placeholder="نام کاربری" className="w-full p-3 border rounded-xl" /><input type="password" required name="password" placeholder="رمز عبور" className="w-full p-3 border rounded-xl" /><button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">ورود</button></form></div>}
+                        {view === 'welcome' && <div className="max-w-5xl mx-auto px-4 py-16 text-center"><h1 className="text-4xl font-black text-slate-900 mb-6">به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1><div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div onClick={() => setView('school')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-emerald-500 transition"><div className="text-3xl mb-4">📚</div><h2 className="text-2xl font-bold mb-2">درس و مدرسه</h2><p className="text-slate-500 text-sm">پایه‌های چهارم تا نهم (جزوه، آزمون، شب امتحان)</p></div><div onClick={() => setView('ai')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-purple-500 transition"><div className="text-3xl mb-4">🤖</div><h2 className="text-2xl font-bold mb-2">دنیای AI</h2><p className="text-slate-500 text-sm">پرامپت‌ها، آموزش هوش مصنوعی و دوره InShot</p></div></div></div>}
                         
+                        {view === 'signup' && <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border"><h2 className="text-2xl font-bold text-center mb-6">ثبت‌نام کاربران</h2><form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); handleSignupStep1({ name: f.get('name'), phone: f.get('phone'), username: f.get('username'), password: f.get('password'), confirmPassword: f.get('confirmPassword') }); }} className="space-y-4"><div><label className="text-xs font-bold block mb-1">نام و نام خانوادگی</label><input required name="name" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">شماره تماس</label><input required name="phone" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">نام کاربری</label><input required name="username" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">رمز عبور</label><input required type="password" name="password" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">تکرار رمز</label><input required type="password" name="confirmPassword" className="w-full p-3 border rounded-xl text-sm" /></div><button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">دریافت کد تأیید</button></form></div>}
+                        {view === 'otp_verify' && <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl text-center"><h2 className="text-xl font-bold mb-6">تأیید شماره همراه</h2><form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(e.target.code.value); }} className="space-y-4"><input required name="code" maxLength="6" className="w-full text-center text-2xl font-bold p-3 border rounded-xl" placeholder="------" /><button type="submit" className="w-full bg-amber-50 text-amber-900 font-bold py-3 rounded-xl">تأیید کد</button></form></div>}
+                        {view === 'welcome_user' && <div className="max-w-xl mx-auto my-16 p-8 bg-white rounded-3xl text-center"><h2>🎉 خوش اومدی، {state.currentUser?.name}!</h2><p className="my-4">ثبت‌نام شما با موفقیت تکمیل شد ❤️</p><button onClick={() => setView('school')} className="w-full bg-emerald-600 text-white py-3 rounded-xl">ورود به بخش دروس</button></div>}
+                        
+                        {view === 'login' && (
+                            <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border">
+                                <h2 className="text-2xl font-bold text-center mb-6">ورود به حساب</h2>
+                                <form onSubmit={(e) => { e.preventDefault(); handleLogin(e.target.username.value, e.target.password.value); }} className="space-y-4">
+                                    <input required name="username" placeholder="نام کاربری یا نام کاربری مخفی مدیریت" className="w-full p-3 border rounded-xl text-sm" />
+                                    <input type="password" required name="password" placeholder="رمز عبور" className="w-full p-3 border rounded-xl text-sm" />
+                                    <button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">ورود</button>
+                                </form>
+                                <div className="text-center mt-4"><button onClick={() => setView('forgot_password')} className="text-xs text-indigo-600 font-semibold">رمز عبور خود را فراموش کرده‌اید؟</button></div>
+                            </div>
+                        )}
+                        
+                        {view === 'forgot_password' && (
+                            <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border text-center">
+                                <h2 className="text-xl font-bold mb-4">بازیابی رمز عبور</h2>
+                                <form onSubmit={(e) => { e.preventDefault(); handleForgotPassword(e.target.phone.value); }} className="space-y-4">
+                                    <input required name="phone" placeholder="شماره تماس ثبت شده" className="w-full p-3 border rounded-xl text-sm text-center" />
+                                    <button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">ارسال کد بازیابی</button>
+                                </form>
+                            </div>
+                        )}
+                        {view === 'new_password' && (
+                            <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border">
+                                <h2 className="text-xl font-bold mb-4 text-center">تعیین رمز عبور جدید</h2>
+                                <form onSubmit={(e) => { e.preventDefault(); handleSaveNewPassword(e.target.newPass.value); }} className="space-y-4">
+                                    <input required type="password" name="newPass" placeholder="رمز عبور جدید" className="w-full p-3 border rounded-xl text-sm" />
+                                    <button type="submit" className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl">ذخیره تغییرات</button>
+                                </form>
+                            </div>
+                        )}
+
                         {view === 'school' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-emerald-600 text-white p-8 rounded-3xl mb-8 flex justify-between items-center">
-                                    <div><h1 className="text-2xl font-black">📚 درس و مدرسه</h1><p className="text-xs opacity-90 mt-1">جزوات و نمونه سوالات تحصیلی</p></div>
+                                    <div><h1 className="text-2xl font-black">📚 درس و مدرسه</h1><p className="text-xs opacity-90 mt-1">جزوات و نمونه سوالات تحصیلی پایه‌های چهارم تا نهم</p></div>
                                 </div>
                                 <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2 border-b">
                                     {['همه', 'پایه چهارم', 'پایه پنجم', 'پایه ششم', 'پایه هفتم', 'پایه هشتم', 'پایه نهم'].map(g => (
                                         <button key={g} onClick={() => setSchoolGradeFilter(g)} className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${schoolGradeFilter === g ? 'bg-emerald-600 text-white' : 'bg-white border text-slate-600'}`}>{g}</button>
                                     ))}
                                 </div>
-                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{filteredSchoolPacks.map(p => <div key={p.id} className="bg-white border rounded-2xl p-4 shadow-sm"><span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded">{p.grade}</span><h3 className="font-bold text-lg mt-2">{p.title}</h3><div className="border-t pt-3 mt-3"><span>{p.price.toLocaleString()} تومان</span></div></div>)}</div>
+                                {filteredSchoolPacks.length === 0 ? <p className="text-slate-400 text-center text-xs py-8">هنوز هیچ محصولی در این پایه اضافه نشده است.</p> :
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{filteredSchoolPacks.map(p => <div key={p.id} className="bg-white border rounded-2xl p-4 flex flex-col justify-between shadow-sm"><span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded self-start mb-2">{p.grade} - {p.subject}</span><h3 className="font-bold text-lg">{p.title}</h3><p className="text-xs text-slate-500 my-2">{p.desc}</p><div className="flex justify-between items-center border-t pt-3 mt-3"><span>{p.price.toLocaleString()} تومان</span><button onClick={() => { setSelectedProduct(p); setView('product_detail'); }} className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">مشاهده و خرید</button></div></div>)}</div>}
                             </div>
                         )}
                         
                         {view === 'ai' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-purple-600 text-white p-8 rounded-3xl mb-8">
-                                    <h1 className="text-2xl font-black">🤖 دنیای AI & هوش مصنوعی</h1>
+                                    <h1 className="text-2xl font-black">🤖 دنیای AI & هوش مصنوعی</h1><p className="text-xs opacity-90 mt-1">پرامپت‌ها، دوره‌ها و آموزش InShot</p>
                                 </div>
                                 <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2 border-b">
                                     {['همه', 'پرامپت', 'دوره AI', 'آموزش InShot'].map(c => (
                                         <button key={c} onClick={() => setAiCategoryFilter(c)} className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${aiCategoryFilter === c ? 'bg-purple-600 text-white' : 'bg-white border text-slate-600'}`}>{c}</button>
                                     ))}
                                 </div>
-                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{filteredAiPacks.map(p => <div key={p.id} className="bg-white border rounded-2xl p-4 shadow-sm"><span className="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded">{p.category}</span><h3 className="font-bold text-lg mt-2">{p.title}</h3><div className="border-t pt-3 mt-3"><span>{p.price.toLocaleString()} تومان</span></div></div>)}</div>
+                                {filteredAiPacks.length === 0 ? <p className="text-slate-400 text-center text-xs py-8">هنوز هیچ محصولی در این بخش اضافه نشده است.</p> :
+                                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{filteredAiPacks.map(p => <div key={p.id} className="bg-white border rounded-2xl p-4 flex flex-col justify-between shadow-sm"><span className="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded self-start mb-2">{p.category}</span><h3 className="font-bold text-lg">{p.title}</h3><p className="text-xs text-slate-500 my-2">{p.desc}</p><div className="flex justify-between items-center border-t pt-3 mt-3"><span>{p.price.toLocaleString()} تومان</span><button onClick={() => { setSelectedProduct(p); setView('product_detail'); }} className="bg-purple-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">مشاهده و خرید</button></div></div>)}</div>}
                             </div>
                         )}
-
+                        
+                        {view === 'product_detail' && selectedProduct && <div className="max-w-3xl mx-auto p-6 bg-white rounded-3xl border shadow-xl my-8"><h2 className="text-2xl font-black mb-4">{selectedProduct.title}</h2><p className="text-slate-600 mb-6">{selectedProduct.desc}</p><button onClick={() => handleBuyProduct(selectedProduct)} className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg">➕ خرید و دریافت محصول</button></div>}
+                        {view === 'user_panel' && state.currentUser && <div className="max-w-4xl mx-auto p-6 bg-white rounded-3xl border my-8"><h2 className="text-xl font-bold mb-4">📦 فایل‌های خریداری شده من</h2><div className="space-y-2">{state.orders.filter(o => o.username === state.currentUser.username).map(o => <div key={o.id} className="p-4 border rounded-xl flex justify-between items-center"><div><p className="font-bold">{o.title}</p><span className="text-xs text-slate-400">نام فایل: {o.fileName}</span></div><button onClick={() => showToast('دانلود آغاز شد')} className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">⬇️ دریافت فایل</button></div>)}</div></div>}
+                        
                         {view === 'admin_dashboard' && state.currentUser?.role === 'admin' && (
-                            <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-                                <div className="bg-white p-6 rounded-2xl border">
-                                    <h3 className="font-bold mb-3">📚 افزودن پک درسی</h3>
-                                    <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); setState(prev => ({ ...prev, schoolPacks: [{ id: 's' + Date.now(), title: f.get('title'), grade: f.get('grade'), price: parseInt(f.get('price')) }, ...prev.schoolPacks] })); showToast('اضافه شد'); }} className="grid grid-cols-2 gap-3 text-xs">
-                                        <input name="title" placeholder="عنوان" required className="p-2 border rounded-xl" />
-                                        <input name="price" type="number" placeholder="قیمت" required className="p-2 border rounded-xl" />
-                                        <select name="grade" className="border p-2 rounded-xl"><option>پایه چهارم</option><option>پایه پنجم</option><option>پایه ششم</option><option>پایه هفتم</option><option>پایه هشتم</option><option>پایه نهم</option></select>
-                                        <button type="submit" className="bg-emerald-600 text-white font-bold p-2 rounded-xl col-span-2">ثبت</button>
-                                    </form>
-                                </div>
-                                <div className="bg-white p-6 rounded-2xl border">
-                                    <h3 className="font-bold mb-3">🤖 افزودن محصول AI (پرامپت/InShot)</h3>
-                                    <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); setState(prev => ({ ...prev, aiPacks: [{ id: 'a' + Date.now(), title: f.get('title'), category: f.get('category'), price: parseInt(f.get('price')) }, ...prev.aiPacks] })); showToast('اضافه شد'); }} className="grid grid-cols-2 gap-3 text-xs">
-                                        <input name="title" placeholder="عنوان" required className="p-2 border rounded-xl" />
-                                        <input name="price" type="number" placeholder="قیمت" required className="p-2 border rounded-xl" />
-                                        <select name="category" className="border p-2 rounded-xl col-span-2"><option>پرامپت</option><option>دوره AI</option><option>آموزش InShot</option></select>
-                                        <button type="submit" className="bg-purple-600 text-white font-bold p-2 rounded-xl col-span-2">ثبت</button>
-                                    </form>
+                            <div className="max-w-7xl mx-auto px-4 py-8"><div className="bg-slate-900 text-white p-6 rounded-3xl mb-8"><h2>🛡️ پنل مدیریت ارشد آکادمی هوش برتر</h2></div>
+                                <div className="space-y-6">
+                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">👥 کاربران واقعی ثبت‌نام شده</h3><input placeholder="جستجو بر اساس نام یا شماره..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="p-2 border rounded-xl mb-3 text-xs w-full outline-none focus:ring-1 focus:ring-indigo-500" /><table className="w-full text-right text-xs"><thead className="bg-slate-50"><tr><th className="p-2">نام</th><th className="p-2">نام کاربری</th><th className="p-2">شماره تماس</th></tr></thead><tbody className="divide-y">{state.users.filter(u => u.name.includes(searchTerm) || u.phone.includes(searchTerm)).map(u => <tr key={u.id}><td>{u.name}</td><td>{u.username}</td><td className="font-bold text-amber-700">{u.phone}</td></tr>)}</tbody></table></div>
+                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">🔑 صندوق دریافت کدهای تأیید (OTP)</h3>{state.otpRequests.map(r => <div key={r.id} className="p-2 border rounded flex justify-between text-xs my-1"><span>{r.phone} - {r.type === 'signup' ? 'ثبت‌نام' : 'بازیابی'}</span><span className="font-bold text-indigo-600 font-mono text-sm">{r.code}</span><button onClick={() => showToast(`کد ${r.code} مجدداً ارسال شد`)} className="bg-indigo-600 text-white px-2 py-1 rounded">ارسال مجدد</button></div>)}</div>
+                                    
+                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">📚 افزودن محصول درسی (چهارم تا نهم)</h3>
+                                        <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, schoolPacks: [{ id: 's' + Date.now(), title: f.get('title'), grade: f.get('grade'), subject: f.get('subject'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'فایل.pdf' }, ...prev.schoolPacks] })); showToast('پک درسی با موفقیت ثبت شد.'); e.target.reset(); }} className="grid grid-cols-2 gap-3 text-xs">
+                                            <input name="title" placeholder="عنوان پک (مثال: پکیج شب امتحان ریاضی)" required className="p-2.5 border rounded-xl" />
+                                            <input name="subject" placeholder="درس (مثال: علوم)" required className="p-2.5 border rounded-xl" />
+                                            <input name="price" type="number" placeholder="قیمت (تومان)" required className="p-2.5 border rounded-xl" />
+                                            <select name="grade" className="border p-2.5 rounded-xl bg-white font-bold">
+                                                <option>پایه چهارم</option><option>پایه پنجم</option><option>پایه ششم</option><option>پایه هفتم</option><option>پایه هشتم</option><option>پایه نهم</option>
+                                            </select>
+                                            <input name="desc" placeholder="توضیحات کوتاه پک" required className="p-2.5 border rounded-xl col-span-2" />
+                                            <div className="col-span-2 border border-dashed border-emerald-300 p-3 rounded-xl bg-emerald-50/20"><label className="block font-bold text-emerald-800 mb-1">📎 انتخاب فایل مستقیم محصول:</label><input type="file" required className="text-[11px]" /></div>
+                                            <button type="submit" className="col-span-2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl shadow">➕ ثبت و انتشار پک مدرسه</button>
+                                        </form>
+                                    </div>
+                                    
+                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">🤖 افزودن محصول هوش مصنوعی / آموزش InShot</h3>
+                                        <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, aiPacks: [{ id: 'a' + Date.now(), title: f.get('title'), category: f.get('category'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'پک.zip' }, ...prev.aiPacks] })); showToast('محصول هوش مصنوعی ثبت شد.'); e.target.reset(); }} className="grid grid-cols-2 gap-3 text-xs">
+                                            <input name="title" placeholder="عنوان دوره یا پک پرامپت" required className="p-2.5 border rounded-xl" />
+                                            <input name="price" type="number" placeholder="قیمت (تومان)" required className="p-2.5 border rounded-xl" />
+                                            <select name="category" className="border p-2.5 rounded-xl bg-white font-bold col-span-2">
+                                                <option>پرامپت</option><option>دوره AI</option><option>آموزش InShot</option>
+                                            </select>
+                                            <input name="desc" placeholder="توضیحات دوره/پرامپت" required className="p-2.5 border rounded-xl col-span-2" />
+                                            <div className="col-span-2 border border-dashed border-purple-300 p-3 rounded-xl bg-purple-50/20"><label className="block font-bold text-purple-800 mb-1">📎 انتخاب فایل یا پکیج ویدیویی محصول:</label><input type="file" required className="text-[11px]" /></div>
+                                            <button type="submit" className="col-span-2 bg-purple-600 text-white font-bold py-2.5 rounded-xl shadow">➕ ثبت و انتشار محصول هوش مصنوعی</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         )}
