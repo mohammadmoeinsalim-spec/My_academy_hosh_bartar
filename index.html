@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سامانه جامع آموزش، فایل و هوش مصنوعی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0284c7', 600: '#0284c7', 700: '#0369a1' },
+                        ai: { 500: '#8b5cf6', 600: '#7c3aed' },
+                        school: { 500: '#10b981', 600: '#059669' }
+                    },
+                    fontFamily: { sans: ['Vazirmatn', 'Tahoma', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen selection:bg-indigo-500 selection:text-white">
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const INITIAL_STATE = {
+            currentUser: null, users: [], otpRequests: [],
+            schoolPacks: [
+                { id: 's1', title: 'پک شب امتحان ریاضی نهم', grade: 'پایه نهم', subject: 'ریاضی', price: 85000, desc: 'شامل نمونه سوالات استاندارد نهایی همراه با پاسخنامه تشریحی و خط به خط.', status: 'active', fileName: 'ریاضی_نهم_شب_امتحان.pdf', fileUrl: '#', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=500&auto=format&fit=crop&q=60' }
+            ],
+            aiPacks: [
+                { id: 'a1', title: 'پک جامع پرامپت تولید محتوا', category: 'پرامپت', price: 120000, desc: 'مجموعه ۵۰ پرامپت طلایی برای تولید متن سایت، اینستاگرام و ایده‌پردازی ویدیو.', status: 'active', fileName: 'prompts_pack_v1.zip', fileUrl: '#', image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&auto=format&fit=crop&q=60' }
+            ],
+            orders: [], messages: [], reviews: [], paymentGateway: { active: false, provider: 'zarinpal', merchantId: '' }
+        };
+        function Toast({ msg, type, onClose }) {
+            useEffect(() => { const timer = setTimeout(onClose, 3500); return () => clearTimeout(timer); }, []);
+            return (
+                <div className={`fixed bottom-5 left-5 z-50 px-5 py-3 rounded-xl shadow-2xl text-white font-medium flex items-center gap-3 animate-bounce ${type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'}`}>
+                    <span>{msg}</span><button onClick={onClose} className="hover:opacity-75">✕</button>
+                </div>
+            );
+        }
+        function App() {
+            const [state, setState] = useState(() => { try { const local = localStorage.getItem('site_app_data_v4'); return local ? JSON.parse(local) : INITIAL_STATE; } catch (e) { return INITIAL_STATE; } });
+            const [view, setView] = useState('welcome'); const [toast, setToast] = useState(null); const [pendingSignup, setPendingSignup] = useState(null); const [pendingResetPhone, setPendingResetPhone] = useState(''); const [selectedProduct, setSelectedProduct] = useState(null); const [searchTerm, setSearchTerm] = useState('');
+            useEffect(() => { try { localStorage.setItem('site_app_data_v4', JSON.stringify(state)); } catch (e) { console.error(e); } }, [state]);
+            const showToast = (msg, type = 'success') => setToast({ msg, type });
+            const ADMIN_USER = "محمد معين سليم صاحب اینجا هست"; const ADMIN_PASS = "M9!vR2#qL7@xP4$z";
+            const handleSignupStep1 = (formData) => {
+                if (state.users.some(u => u.phone === formData.phone) || state.users.some(u => u.username === formData.username)) { showToast('مشخصات تکراری است.', 'error'); return; }
+                if (formData.password !== formData.confirmPassword) { showToast('رمزها یکسان نیستند.', 'error'); return; }
+                const code = Math.floor(100000 + Math.random() * 900000).toString();
+                setState(prev => ({ ...prev, otpRequests: [{ id: Date.now().toString(), phone: formData.phone, type: 'signup', code, formData, createdAt: new Date().toLocaleTimeString('fa-IR'), status: 'pending' }, ...prev.otpRequests] }));
+                setPendingSignup({ ...formData, code }); setView('otp_verify'); showToast('کد صادر شد.');
+            };
+            const handleVerifyOtp = (inputCode) => {
+                if (pendingSignup && inputCode === pendingSignup.code) {
+                    const newUser = { id: Date.now().toString(), name: pendingSignup.name, phone: pendingSignup.phone, username: pendingSignup.username, passwordHash: 'hash_' + pendingSignup.password, createdAt: new Date().toLocaleDateString('fa-IR'), orderCount: 0 };
+                    setState(prev => ({ ...prev, users: [...prev.users, newUser], currentUser: newUser })); setPendingSignup(null); setView('welcome_user');
+                } else if (pendingResetPhone) {
+                    const req = state.otpRequests.find(r => r.phone === pendingResetPhone && r.type === 'reset');
+                    if (req && req.code === inputCode) setView('new_password'); else showToast('کد اشتباه است.', 'error');
+                } else { showToast('کد اشتباه است.', 'error'); }
+            };
+            const handleLogin = (username, password) => {
+                if (username.trim() === ADMIN_USER.trim() && password === ADMIN_PASS) { setState(prev => ({ ...prev, currentUser: { username: ADMIN_USER, name: 'مدیر کل', role: 'admin' } })); setView('admin_dashboard'); showToast('خوش آمدید مدیر محترم 👑'); return; }
+                const user = state.users.find(u => u.username === username && u.passwordHash === 'hash_' + password);
+                if (user) { setState(prev => ({ ...prev, currentUser: { ...user, role: 'user' } })); setView('school'); showToast(`خوش آمدید ${user.name}`); } else { showToast('❌ نام کاربری یا رمز عبور اشتباه است.', 'error'); }
+            };
+            const handleForgotPassword = (phone) => {
+                const user = state.users.find(u => u.phone === phone); if (!user) { showToast('کاربر یافت نشد.', 'error'); return; }
+                const code = Math.floor(100000 + Math.random() * 900000).toString();
+                setState(prev => ({ ...prev, otpRequests: [{ id: Date.now().toString(), phone, type: 'reset', code, createdAt: new Date().toLocaleTimeString('fa-IR'), status: 'pending' }, ...prev.otpRequests] }));
+                setPendingResetPhone(phone); setView('otp_verify'); showToast('کد صادر شد.');
+            };
+            const handleSaveNewPassword = (newPass) => { setState(prev => ({ ...prev, users: prev.users.map(u => u.phone === pendingResetPhone ? { ...u, passwordHash: 'hash_' + newPass } : u) })); showToast('رمز تغییر یافت.'); setPendingResetPhone(''); setView('login'); };
+            const handleBuyProduct = (product) => {
+                if (!state.currentUser) { showToast('لطفا وارد شوید.', 'error'); setView('login'); return; }
+                setState(prev => ({ ...prev, orders: [{ id: 'ORD-' + Math.floor(1000 + Math.random() * 9000), username: state.currentUser.username, title: product.title, price: product.price, date: new Date().toLocaleDateString('fa-IR'), status: 'پرداخت شده', fileName: product.fileName || 'دانلود.zip', fileUrl: product.fileUrl || '#' }, ...prev.orders], users: prev.users.map(u => u.username === state.currentUser.username ? { ...u, orderCount: (u.orderCount || 0) + 1 } : u) }));
+                showToast('✅ پرداخت با موفقیت انجام شد!'); setView('user_panel');
+            };
+            const handleAddReview = (productId, rating, comment) => { if (!state.currentUser) return; setState(prev => ({ ...prev, reviews: [{ id: Date.now().toString(), productId, username: state.currentUser.username, rating, comment, status: 'pending', reply: null }, ...prev.reviews] })); showToast('نظر ثبت شد و منتظر تایید است.'); };
+            const handleSendMessage = (section, text) => { if (!state.currentUser) return; setState(prev => ({ ...prev, messages: [{ id: Date.now().toString(), from: state.currentUser.username, section, text, date: new Date().toLocaleDateString('fa-IR'), reply: null }, ...prev.messages] })); showToast('پیام ارسال شد.'); };
+            return (
+                <div className="min-h-screen flex flex-col justify-between">
+                    <div>
+                        <header className="sticky top-0 z-40 glass border-b border-slate-200 shadow-sm"><div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between"><div className="flex items-center gap-6"><button onClick={() => setView('welcome')} className="text-xl font-black bg-gradient-to-r from-indigo-600 to-sky-500 bg-clip-text text-transparent">آکادمی فایل & AI</button><nav className="hidden md:flex items-center gap-2"><button onClick={() => setView('school')} className="px-3 py-2 text-sm font-semibold">📚 درس و مدرسه</button><button onClick={() => setView('ai')} className="px-3 py-2 text-sm font-semibold">🤖 دنیای AI</button></nav></div><div>{state.currentUser ? <div className="flex items-center gap-2">{state.currentUser.role === 'admin' ? <button onClick={() => setView('admin_dashboard')} className="bg-amber-500 text-white px-4 py-2 rounded-xl text-sm font-bold">🛡️ پنل مدیریت</button> : <button onClick={() => setView('user_panel')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold">👤 پنل کاربری</button>}<button onClick={() => { setState(prev => ({ ...prev, currentUser: null })); setView('welcome'); }} className="text-rose-500 p-2 text-sm font-bold">خروج</button></div> : <div className="flex items-center gap-2"><button onClick={() => setView('login')} className="text-slate-700 text-sm font-semibold px-2">ورود</button><button onClick={() => setView('signup')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">ثبت‌نام</button></div>}</div></div></header>
+                        {view === 'welcome' && <div className="max-w-5xl mx-auto px-4 py-16 text-center"><h1 className="text-4xl font-black text-slate-900 mb-6">به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1><div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div onClick={() => setView('school')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer"><div className="text-3xl mb-4">📚</div><h2 className="text-2xl font-bold mb-2">درس و مدرسه</h2><p className="text-slate-500 text-sm">پایه‌های چهارم تا نهم</p></div><div onClick={() => setView('ai')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer"><div className="text-3xl mb-4">🤖</div><h2 className="text-2xl font-bold mb-2">دنیای AI</h2><p className="text-slate-500 text-sm">پرامپت و دوره‌ها</p></div></div></div>}
+                        {view === 'signup' && <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border"><h2 className="text-2xl font-bold text-center mb-6">ثبت‌نام</h2><form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); handleSignupStep1({ name: f.get('name'), phone: f.get('phone'), username: f.get('username'), password: f.get('password'), confirmPassword: f.get('confirmPassword') }); }} className="space-y-4"><div><label className="text-xs font-bold block mb-1">نام و نام خانوادگی</label><input required name="name" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">شماره تماس</label><input required name="phone" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">نام کاربری</label><input required name="username" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">رمز عبور</label><input required type="password" name="password" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">تکرار رمز</label><input required type="password" name="confirmPassword" className="w-full p-3 border rounded-xl text-sm" /></div><button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">دریافت کد تأیید</button></form></div>}
+                        {view === 'otp_verify' && <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl text-center"><h2 className="text-xl font-bold mb-6">تأیید شماره</h2><form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(e.target.code.value); }} className="space-y-4"><input required name="code" maxLength="6" className="w-full text-center text-2xl font-bold p-3 border rounded-xl" placeholder="------" /><button type="submit" className="w-full bg-amber-50 text-amber-900 font-bold py-3 rounded-xl">تأیید</button></form></div>}
+                        {view === 'welcome_user' && <div className="max-w-xl mx-auto my-16 p-8 bg-white rounded-3xl text-center"><h2>🎉 خوش اومدی، {state.currentUser?.name}!</h2><p className="my-4">خیلی خوشحالیم که به جمع ما پیوستی ❤️</p><button onClick={() => setView('school')} className="w-full bg-emerald-600 text-white py-3 rounded-xl">ورود به سایت</button></div>}
+                        {view === 'login' && <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border"><h2 className="text-2xl font-bold text-center mb-6">ورود</h2><form onSubmit={(e) => { e.preventDefault(); handleLogin(e.target.username.value, e.target.password.value); }} className="space-y-4"><input required name="username" placeholder="نام کاربری" className="w-full p-3 border rounded-xl" /><input type="password" required name="password" placeholder="رمز عبور" className="w-full p-3 border rounded-xl" /><button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">ورود</button></form></div>}
+                        {view === 'school' && <div className="max-w-7xl mx-auto px-4 py-8"><div className="bg-emerald-600 text-white p-8 rounded-3xl mb-8 flex justify-between items-center"><div><h1 className="text-2xl font-black">📚 درس و مدرسه</h1></div><button onClick={() => setView('school_chat')} className="bg-white text-emerald-800 px-4 py-2 rounded-xl font-bold">💬 برنامه‌ریزی اختصاصی</button></div><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{state.schoolPacks.map(p => <div key={p.id} className="bg-white border rounded-2xl p-4 flex flex-col justify-between"><h3 className="font-bold text-lg">{p.title}</h3><p className="text-xs text-slate-500 my-2">{p.desc}</p><div className="flex justify-between items-center border-t pt-3 mt-3"><span>{p.price.toLocaleString()} تومان</span><button onClick={() => { setSelectedProduct(p); setView('product_detail'); }} className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs">خرید</button></div></div>)}</div></div>}
+                        {view === 'ai' && <div className="max-w-7xl mx-auto px-4 py-8"><div className="bg-purple-600 text-white p-8 rounded-3xl mb-8 flex justify-between items-center"><div><h1 className="text-2xl font-black">🤖 دنیای AI</h1></div><button onClick={() => setView('ai_chat')} className="bg-white text-purple-800 px-4 py-2 rounded-xl font-bold">✨ پرامپت اختصاصی</button></div><div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{state.aiPacks.map(p => <div key={p.id} className="bg-white border rounded-2xl p-4 flex flex-col justify-between"><h3 className="font-bold text-lg">{p.title}</h3><p className="text-xs text-slate-500 my-2">{p.desc}</p><div className="flex justify-between items-center border-t pt-3 mt-3"><span>{p.price.toLocaleString()} تومان</span><button onClick={() => { setSelectedProduct(p); setView('product_detail'); }} className="bg-purple-600 text-white px-3 py-1.5 rounded-xl text-xs">خرید</button></div></div>)}</div></div>}
+                        {view === 'product_detail' && selectedProduct && <div className="max-w-3xl mx-auto p-6 bg-white rounded-3xl border shadow-xl my-8"><h2 className="text-2xl font-black mb-4">{selectedProduct.title}</h2><p className="text-slate-600 mb-6">{selectedProduct.desc}</p><button onClick={() => handleBuyProduct(selectedProduct)} className="w-full bg-emerald-600 text-white font-bold py-3 rounded-xl">➕ افزودن به سبد و دریافت</button></div>}
+                        {view === 'user_panel' && state.currentUser && <div className="max-w-4xl mx-auto p-6 bg-white rounded-3xl border my-8"><h2 className="text-xl font-bold mb-4">📦 خریدهای من</h2><div className="space-y-2">{state.orders.filter(o => o.username === state.currentUser.username).map(o => <div key={o.id} className="p-4 border rounded-xl flex justify-between items-center"><div><p className="font-bold">{o.title}</p><span className="text-xs text-slate-400">{o.fileName}</span></div><button onClick={() => showToast('دانلود آغاز شد')} className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs">⬇️ دریافت فایل</button></div>)}</div></div>}
+                        {view === 'admin_dashboard' && state.currentUser?.role === 'admin' && (
+                            <div className="max-w-7xl mx-auto px-4 py-8"><div className="bg-slate-900 text-white p-6 rounded-3xl mb-8"><h2>🛡️ پنل مدیریت ارشد</h2></div>
+                                <div className="space-y-6">
+                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">👥 کاربران</h3><input placeholder="جستجو..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="p-2 border rounded-xl mb-3 text-xs w-full" /><table className="w-full text-right text-xs"><thead className="bg-slate-50"><tr><th className="p-2">نام</th><th className="p-2">نام کاربری</th><th className="p-2">شماره تماس</th></tr></thead><tbody className="divide-y">{state.users.filter(u => u.name.includes(searchTerm) || u.phone.includes(searchTerm)).map(u => <tr key={u.id}><td>{u.name}</td><td>{u.username}</td><td className="font-bold text-amber-700">{u.phone}</td></tr>)}</tbody></table></div>
+                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">🔑 درخواست‌های OTP</h3>{state.otpRequests.map(r => <div key={r.id} className="p-2 border rounded flex justify-between text-xs my-1"><span>{r.phone} - {r.type}</span><span className="font-bold text-indigo-600 font-mono">{r.code}</span><button onClick={() => showToast('ارسال شد')} className="bg-indigo-600 text-white px-2 py-1 rounded">ارسال SMS دستی</button></div>)}</div>
+                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">📚 افزودن به مدرسه</h3><form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, schoolPacks: [{ id: 's' + Date.now(), title: f.get('title'), grade: f.get('grade'), subject: f.get('subject'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'فایل.pdf', fileUrl: '#', status: 'active', image: '' }, ...prev.schoolPacks] })); showToast('اضافه شد'); e.target.reset(); }} className="grid grid-cols-2 gap-2 text-xs"><input name="title" placeholder="عنوان" required className="p-2 border rounded" /><input name="subject" placeholder="درس" required className="p-2 border rounded" /><input name="price" type="number" placeholder="قیمت" required className="p-2 border rounded" /><input name="desc" placeholder="توضیحات" required className="p-2 border rounded" /><input type="file" className="p-2" /><select name="grade" className="border rounded"><option>پایه نهم</option><option>پایه هشتم</option></select><button type="submit" className="col-span-2 bg-emerald-600 text-white p-2 rounded">➕ ثبت</button></form></div>
+                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">🤖 افزودن به AI</h3><form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, aiPacks: [{ id: 'a' + Date.now(), title: f.get('title'), category: f.get('category'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'پک.zip', fileUrl: '#', status: 'active', image: '' }, ...prev.aiPacks] })); showToast('اضافه شد'); e.target.reset(); }} className="grid grid-cols-2 gap-2 text-xs"><input name="title" placeholder="عنوان" required className="p-2 border rounded" /><input name="price" type="number" placeholder="قیمت" required className="p-2 border rounded" /><input name="desc" placeholder="توضیحات" required className="p-2 border rounded" /><select name="category" className="border rounded"><option>پرامپت</option><option>دوره AI</option></select><input type="file" className="p-2 col-span-2" /><button type="submit" className="col-span-2 bg-purple-600 text-white p-2 rounded">➕ ثبت</button></form></div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+                </div>
+            );
+        }
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
