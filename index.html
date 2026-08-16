@@ -178,7 +178,6 @@
                                         <button onClick={() => setView('school')} className="px-3 py-2 text-sm font-semibold">📚 درس و مدرسه</button>
                                         <button onClick={() => setView('ai')} className="px-3 py-2 text-sm font-semibold">🤖 دنیای AI</button>
                                         <button onClick={() => setView('rules')} className="px-3 py-2 text-sm font-semibold text-slate-600">قوانین و مقررات</button>
-                                        <button onClick={() => setView('contact')} className="px-3 py-2 text-sm font-semibold text-slate-600">تماس با ما</button>
                                     </nav>
                                 </div>
                                 <div>
@@ -307,7 +306,7 @@
                                     </div>
                                     <div className="flex justify-between border-t pt-2 text-xs text-slate-400">
                                         <span>درگاه آنلاین:</span>
-                                        <span className="font-mono text-emerald-600 font-bold">شاپرک (Shatarak.ir)</span>
+                                        <span className="font-mono text-emerald-600 font-bold">شاپرک (Shaparak.ir)</span>
                                     </div>
                                 </div>
                                 <button onClick={() => startPayment(selectedProduct)} className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 transition">
@@ -316,7 +315,7 @@
                             </div>
                         )}
 
-                        {/* شبیه‌ساز انتقال به شاپرک طبق الزامات اینماد */}
+                        {/* شبیه‌ساز انتقال به شاپرک */}
                         {view === 'gateway_redirect' && selectedProduct && (
                             <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl border shadow-xl text-center">
                                 <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -328,28 +327,13 @@
                             </div>
                         )}
 
-                        {/* صفحات قانونی الزامی اینماد */}
+                        {/* صفحه قوانین */}
                         {view === 'rules' && (
                             <div className="max-w-4xl mx-auto p-8 bg-white rounded-3xl border shadow-sm my-8 text-sm leading-relaxed space-y-4">
                                 <h1 className="text-xl font-bold border-b pb-3 mb-4">قوانین و مقررات آکادمی هوش برتر</h1>
                                 <p><strong>۱. شرایط استفاده:</strong> تمام محتواها و فایل‌های دانلودی ارائه‌شده در این سایت متعلق به آکادمی هوش برتر است و هرگونه بازنشر یا فروش مجدد آن پیگرد قانونی دارد.</p>
                                 <p><strong>۲. تحویل محصول:</strong> تمام محصولات به صورت فایل الکترونیکی و دانلودی هستند و بلافاصله پس از پرداخت در پنل کاربری قابل دریافت خواهند بود.</p>
                                 <p><strong>۳. سیاست بازگشت وجه:</strong> با توجه به دانلودی بودن محتوا، بازگشت وجه تنها در صورت وجود نقص در فایل یا عدم تطابق با توضیحات محصول امکان‌پذیر است.</p>
-                            </div>
-                        )}
-
-                        {view === 'contact' && (
-                            <div className="max-w-4xl mx-auto p-8 bg-white rounded-3xl border shadow-sm my-8">
-                                <h1 className="text-xl font-bold border-b pb-3 mb-6">ارتباط با ما</h1>
-                                <div className="grid md:grid-cols-2 gap-6 text-sm">
-                                    <div className="space-y-3">
-                                        <p><strong>صاحب امتیاز:</strong> محمد معين سليم</p>
-                                        <p><strong>شماره پشتیبانی:</strong> 021XXXXXXXX / 09123456789</p>
-                                        <p><strong>ایمیل:</strong> info@academy.ir</p>
-                                        <p><strong>آدرس دفتر مرکزی:</strong> تهران، خیابان اصلی، پلاک ۱</p>
-                                        <p><strong>ساعات پاسخگویی:</strong> شنبه تا چهارشنبه ۹ الی ۱۷</p>
-                                    </div>
-                                </div>
                             </div>
                         )}
 
@@ -373,25 +357,49 @@
                             </div>
                         )}
 
+                        {/* پنل مدیریت شامل هر دو بخش افزودن (درسی و AI) */}
                         {view === 'admin_dashboard' && state.currentUser?.role === 'admin' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-slate-900 text-white p-6 rounded-3xl mb-8"><h2>🛡️ پنل مدیریت ارشد آکادمی هوش برتر</h2></div>
                                 <div className="space-y-6">
                                     <div className="bg-white p-6 rounded-2xl border">
                                         <h3 className="font-bold mb-3">👥 کاربران ثبت‌نام شده</h3>
-                                        <input placeholder="جستجو..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="p-2 border rounded-xl mb-3 text-xs w-full outline-none" />
+                                        <input placeholder="جستجو بر اساس نام یا شماره..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="p-2 border rounded-xl mb-3 text-xs w-full outline-none focus:ring-1 focus:ring-indigo-500" />
                                         <table className="w-full text-right text-xs"><thead className="bg-slate-50"><tr><th className="p-2">نام</th><th className="p-2">نام کاربری</th><th className="p-2">شماره تماس</th></tr></thead><tbody className="divide-y">{state.users.filter(u => u.name.includes(searchTerm) || u.phone.includes(searchTerm)).map(u => <tr key={u.id}><td>{u.name}</td><td>{u.username}</td><td className="font-bold text-amber-700">{u.phone}</td></tr>)}</tbody></table>
                                     </div>
                                     <div className="bg-white p-6 rounded-2xl border">
-                                        <h3 className="font-bold mb-3">📚 افزودن محصول درسی</h3>
-                                        <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, schoolPacks: [{ id: 's' + Date.now(), title: f.get('title'), grade: f.get('grade'), subject: f.get('subject'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'فایل.pdf' }, ...prev.schoolPacks] })); showToast('پک ثبت شد.'); e.target.reset(); }} className="grid grid-cols-2 gap-3 text-xs">
-                                            <input name="title" placeholder="عنوان پک" required className="p-2.5 border rounded-xl" />
-                                            <input name="subject" placeholder="درس" required className="p-2.5 border rounded-xl" />
+                                        <h3 className="font-bold mb-3">🔑 صندوق دریافت کدهای تأیید (OTP)</h3>
+                                        {state.otpRequests.map(r => <div key={r.id} className="p-2 border rounded flex justify-between text-xs my-1"><span>{r.phone} - {r.type === 'signup' ? 'ثبت‌نام' : 'بازیابی'}</span><span className="font-bold text-indigo-600 font-mono text-sm">{r.code}</span><button onClick={() => showToast(`کد ${r.code} مجدداً ارسال شد`)} className="bg-indigo-600 text-white px-2 py-1 rounded">ارسال مجدد</button></div>)}
+                                    </div>
+
+                                    {/* بخش افزودن محصول درسی */}
+                                    <div className="bg-white p-6 rounded-2xl border">
+                                        <h3 className="font-bold mb-3">📚 افزودن محصول درسی (چهارم تا نهم)</h3>
+                                        <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, schoolPacks: [{ id: 's' + Date.now(), title: f.get('title'), grade: f.get('grade'), subject: f.get('subject'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'فایل.pdf' }, ...prev.schoolPacks] })); showToast('پک درسی با موفقیت ثبت شد.'); e.target.reset(); }} className="grid grid-cols-2 gap-3 text-xs">
+                                            <input name="title" placeholder="عنوان پک (مثال: پکیج شب امتحان ریاضی)" required className="p-2.5 border rounded-xl" />
+                                            <input name="subject" placeholder="درس (مثال: علوم)" required className="p-2.5 border rounded-xl" />
                                             <input name="price" type="number" placeholder="قیمت (تومان)" required className="p-2.5 border rounded-xl" />
-                                            <select name="grade" className="border p-2.5 rounded-xl bg-white font-bold"><option>پایه چهارم</option><option>پایه پنجم</option><option>پایه ششم</option><option>پایه هفتم</option><option>پایه هشتم</option><option>پایه نهم</option></select>
-                                            <input name="desc" placeholder="توضیحات" required className="p-2.5 border rounded-xl col-span-2" />
-                                            <div className="col-span-2 border border-dashed p-3 rounded-xl"><input type="file" required className="text-[11px]" /></div>
-                                            <button type="submit" className="col-span-2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl">➕ انتشار محصول</button>
+                                            <select name="grade" className="border p-2.5 rounded-xl bg-white font-bold">
+                                                <option>پایه چهارم</option><option>پایه پنجم</option><option>پایه ششم</option><option>پایه هفتم</option><option>پایه هشتم</option><option>پایه نهم</option>
+                                            </select>
+                                            <input name="desc" placeholder="توضیحات کوتاه پک" required className="p-2.5 border rounded-xl col-span-2" />
+                                            <div className="col-span-2 border border-dashed border-emerald-300 p-3 rounded-xl bg-emerald-50/20"><label className="block font-bold text-emerald-800 mb-1">📎 انتخاب فایل مستقیم محصول:</label><input type="file" required className="text-[11px]" /></div>
+                                            <button type="submit" className="col-span-2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl shadow">➕ ثبت و انتشار پک مدرسه</button>
+                                        </form>
+                                    </div>
+                                    
+                                    {/* بخش افزودن محصول هوش مصنوعی / InShot */}
+                                    <div className="bg-white p-6 rounded-2xl border">
+                                        <h3 className="font-bold mb-3">🤖 افزودن محصول هوش مصنوعی / آموزش InShot</h3>
+                                        <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, aiPacks: [{ id: 'a' + Date.now(), title: f.get('title'), category: f.get('category'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'پک.zip' }, ...prev.aiPacks] })); showToast('محصول هوش مصنوعی ثبت شد.'); e.target.reset(); }} className="grid grid-cols-2 gap-3 text-xs">
+                                            <input name="title" placeholder="عنوان دوره یا پک پرامپت" required className="p-2.5 border rounded-xl" />
+                                            <input name="price" type="number" placeholder="قیمت (تومان)" required className="p-2.5 border rounded-xl" />
+                                            <select name="category" className="border p-2.5 rounded-xl bg-white font-bold col-span-2">
+                                                <option>پرامپت</option><option>دوره AI</option><option>آموزش InShot</option>
+                                            </select>
+                                            <input name="desc" placeholder="توضیحات دوره/پرامپت" required className="p-2.5 border rounded-xl col-span-2" />
+                                            <div className="col-span-2 border border-dashed border-purple-300 p-3 rounded-xl bg-purple-50/20"><label className="block font-bold text-purple-800 mb-1">📎 انتخاب فایل یا پکیج ویدیویی محصول:</label><input type="file" required className="text-[11px]" /></div>
+                                            <button type="submit" className="col-span-2 bg-purple-600 text-white font-bold py-2.5 rounded-xl shadow">➕ ثبت و انتشار محصول هوش مصنوعی</button>
                                         </form>
                                     </div>
                                 </div>
@@ -399,9 +407,9 @@
                         )}
                     </div>
 
-                    {/* فوتر استاندارد مطابقت‌یافته با اینماد */}
+                    {/* فوتر */}
                     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 mt-16 text-xs">
-                        <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="space-y-3">
                                 <h3 className="text-white font-bold text-sm">آکادمی هوش برتر</h3>
                                 <p className="leading-relaxed text-slate-400">مرکز تخصصی فروش فایل‌های آموزشی، جزوات شب امتحان و دوره‌های هوش مصنوعی و ساخت محتوا.</p>
@@ -412,14 +420,6 @@
                                     <li><button onClick={() => setView('school')} className="hover:text-white">دروس مدرسه</button></li>
                                     <li><button onClick={() => setView('ai')} className="hover:text-white">دوره‌های AI</button></li>
                                     <li><button onClick={() => setView('rules')} className="hover:text-white">قوانین و مقررات</button></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="text-white font-bold mb-3">اطلاعات تماس</h4>
-                                <ul className="space-y-2 text-slate-400">
-                                    <li>صاحب امتیاز: محمد معين سليم</li>
-                                    <li>تلفن پشتیبانی: ۰۲۱-۱۲۳۴۵۶۷۸</li>
-                                    <li>پاسخگویی: ۹ الی ۱۷</li>
                                 </ul>
                             </div>
                             {/* محل قرارگیری لوگوی اینماد */}
