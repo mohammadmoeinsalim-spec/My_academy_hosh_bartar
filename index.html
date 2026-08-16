@@ -69,7 +69,7 @@
         function App() {
             const [state, setState] = useState(() => { 
                 try { 
-                    const local = localStorage.getItem('site_app_data_v11'); 
+                    const local = localStorage.getItem('site_app_data_v12'); 
                     return local ? JSON.parse(local) : INITIAL_STATE; 
                 } catch (e) { 
                     console.warn("خطا در خواندن LocalStorage:", e);
@@ -87,7 +87,7 @@
             
             useEffect(() => { 
                 try { 
-                    localStorage.setItem('site_app_data_v11', JSON.stringify(state)); 
+                    localStorage.setItem('site_app_data_v12', JSON.stringify(state)); 
                 } catch (e) { 
                     console.error("خطا در ذخیره LocalStorage:", e); 
                 } 
