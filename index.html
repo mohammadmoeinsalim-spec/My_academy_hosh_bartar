@@ -6,7 +6,7 @@
     <!-- عنوان موقت درخواستی برای تاییدیه اینماد -->
     <title>24028517</title>
     <!-- متاتگ اینماد دقیقاً مطابق درخواست سامانه -->
-    <meta name="enamad" content="به اکادمی هوش برتر خوش آمدید" />
+    <meta name="enamad" content="24028517" />
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -69,7 +69,7 @@
         function App() {
             const [state, setState] = useState(() => { 
                 try { 
-                    const local = localStorage.getItem('site_app_data_v8'); 
+                    const local = localStorage.getItem('site_app_data_v11'); 
                     return local ? JSON.parse(local) : INITIAL_STATE; 
                 } catch (e) { 
                     console.warn("خطا در خواندن LocalStorage:", e);
@@ -87,7 +87,7 @@
             
             useEffect(() => { 
                 try { 
-                    localStorage.setItem('site_app_data_v8', JSON.stringify(state)); 
+                    localStorage.setItem('site_app_data_v11', JSON.stringify(state)); 
                 } catch (e) { 
                     console.error("خطا در ذخیره LocalStorage:", e); 
                 } 
@@ -234,12 +234,12 @@
                         
                         {view === 'welcome' && (
                             <div className="max-w-5xl mx-auto px-4 py-16 text-center">
-                                <h1 className="text-4xl font-black text-slate-900 mb-6">به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1>
+                                <h1 className="text-4xl font-black text-slate-900 mb-6">به آکادمی هوش برتر خوش آمدید ✨</h1>
                                 <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                                     <div onClick={() => setView('school')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-emerald-500 transition">
                                         <div className="text-3xl mb-4">📚</div>
                                         <h2 className="text-2xl font-bold mb-2">درس و مدرسه</h2>
-                                        <p className="text-slate-500 text-sm">پایه‌های چهارم تا نهم (جزوه، آزمون، شب امتحان)</p>
+                                        <p className="text-slate-500 text-sm">پایه‌های چهارم تا هفتم (جزوه، آزمون، شب امتحان)</p>
                                     </div>
                                     <div onClick={() => setView('ai')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-purple-500 transition">
                                         <div className="text-3xl mb-4">🤖</div>
@@ -296,10 +296,10 @@
                         {view === 'school' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-emerald-600 text-white p-8 rounded-3xl mb-8 flex justify-between items-center">
-                                    <div><h1 className="text-2xl font-black">📚 درس و مدرسه</h1><p className="text-xs opacity-90 mt-1">جزوات و نمونه سوالات تحصیلی پایه‌های چهارم تا نهم</p></div>
+                                    <div><h1 className="text-2xl font-black">📚 درس و مدرسه</h1><p className="text-xs opacity-90 mt-1">جزوات و نمونه سوالات تحصیلی پایه‌های چهارم تا هفتم</p></div>
                                 </div>
                                 <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar py-2 border-b">
-                                    {['همه', 'پایه چهارم', 'پایه پنجم', 'پایه ششم', 'پایه هفتم', 'پایه هشتم', 'پایه نهم'].map(g => (
+                                    {['همه', 'پایه چهارم', 'پایه پنجم', 'پایه ششم', 'پایه هفتم'].map(g => (
                                         <button key={g} onClick={() => setSchoolGradeFilter(g)} className={`px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap ${schoolGradeFilter === g ? 'bg-emerald-600 text-white' : 'bg-white border text-slate-600'}`}>{g}</button>
                                     ))}
                                 </div>
@@ -418,7 +418,7 @@
                                             <input name="subject" placeholder="درس (مثال: علوم)" required className="p-2.5 border rounded-xl" />
                                             <input name="price" type="number" placeholder="قیمت (تومان)" required className="p-2.5 border rounded-xl" />
                                             <select name="grade" className="border p-2.5 rounded-xl bg-white font-bold">
-                                                <option>پایه چهارم</option><option>پایه پنجم</option><option>پایه ششم</option><option>پایه هفتم</option><option>پایه هشتم</option><option>پایه نهم</option>
+                                                <option>پایه چهارم</option><option>پایه پنجم</option><option>پایه ششم</option><option>پایه هفتم</option>
                                             </select>
                                             <input name="desc" placeholder="توضیحات کوتاه پک" required className="p-2.5 border rounded-xl col-span-2" />
                                             <div className="col-span-2 border border-dashed border-emerald-400 p-4 rounded-xl bg-emerald-50/40 text-center">
