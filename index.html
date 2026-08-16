@@ -4,208 +4,203 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="enamad" content="24028517"/>
-    <title>آکادمی هوش برتر</title>
+    <title>آکادمی هوش برتر | مرجع آموزش و فایل‌های کاربردی</title>
+    
+    <!-- Tailwind CSS & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @font-face {
-            font-family: 'BNazanin';
-            src: local('B Nazanin'), local('BNazanin');
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'BNazanin', 'Vazirmatn', Tahoma, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            line-height: 1.6;
-            direction: rtl;
-        }
-
-        header {
-            background-color: #ffffff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-container {
-            max-w: 1100px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #2563eb;
-        }
-
-        nav a {
-            margin-right: 15px;
-            text-decoration: none;
-            color: #475569;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        nav a:hover {
-            color: #2563eb;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 4rem 1rem;
-            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .hero h1 {
-            font-size: 2.2rem;
-            color: #1e3a8a;
-            margin-bottom: 1rem;
-        }
-
-        .hero p {
-            font-size: 1.1rem;
-            color: #475569;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        .section-title {
-            font-size: 1.6rem;
-            color: #0f172a;
-            margin-bottom: 1.5rem;
-            border-right: 4px solid #2563eb;
-            padding-right: 10px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .card {
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .card h3 {
-            color: #1e293b;
-            margin-bottom: 0.5rem;
-            font-size: 1.3rem;
-        }
-
-        .card p {
-            color: #64748b;
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: #2563eb;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-        }
-
-        .btn:hover {
-            background-color: #1d4ed8;
-        }
-
-        footer {
-            background-color: #0f172a;
-            color: #94a3b8;
-            text-align: center;
-            padding: 2rem 1rem;
-            margin-top: 4rem;
-        }
+        @import url('https://v1.fontapi.ir/css/Vazirmatn');
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .modal { display: none; }
+        .modal.active { display: flex; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 font-sans">
 
-    <header>
-        <div class="nav-container">
-            <div class="logo">آکادمی هوش برتر</div>
-            <nav>
-                <a href="#school">درس و مدرسه</a>
-                <a href="#ai">دنیای AI</a>
-                <a href="#admin">پنل مدیریت</a>
+    <!-- ۱. هدر و ناوبری -->
+    <header class="bg-white shadow-sm sticky top-0 z-40 border-b border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <span class="bg-blue-600 text-white p-2 rounded-xl font-bold text-lg">🎓</span>
+                <span class="font-black text-xl text-slate-900">آکادمی هوش برتر</span>
+            </div>
+            
+            <nav class="hidden md:flex space-x-6 space-x-reverse font-medium text-sm text-slate-600">
+                <a href="#school" class="hover:text-blue-600 transition"><i class="fas fa-graduation-cap ml-1 text-green-500"></i>درس و مدرسه</a>
+                <a href="#ai" class="hover:text-blue-600 transition"><i class="fas fa-robot ml-1 text-purple-500"></i>دنیای AI</a>
+                <a href="#planning" class="hover:text-blue-600 transition"><i class="fas fa-calendar-alt ml-1 text-amber-500"></i>برنامه‌ریزی درسی</a>
             </nav>
+
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <button onclick="openModal('auth-modal')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-4 py-2 rounded-xl transition">
+                    <i class="fas fa-user-circle ml-1.5"></i>ورود / ثبت‌نام
+                </button>
+                <button onclick="openModal('admin-modal')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition" title="پنل مدیریت">
+                    <i class="fas fa-shield-alt ml-1 text-slate-500"></i>مدیریت
+                </button>
+            </div>
         </div>
     </header>
 
-    <section class="hero">
-        <h1>به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1>
-        <p>ارائه‌دهنده دوره‌های هوش مصنوعی، پکیج‌های پرامپت، جزوات مدرسه‌ای و آموزش‌های کاربردی.</p>
+    <!-- ۲. صفحه شروع (Hero Section) -->
+    <section class="bg-gradient-to-b from-blue-900 to-indigo-900 text-white py-16 px-4 text-center">
+        <div class="max-w-3xl mx-auto space-y-6">
+            <span class="bg-blue-500/20 text-blue-300 text-xs font-bold px-3 py-1.5 rounded-full border border-blue-400/30">نسخه نهایی آکادمی</span>
+            <h1 class="text-3xl md:text-5xl font-black leading-tight">به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1>
+            <p class="text-slate-300 text-sm md:text-base leading-relaxed">
+                مرجع تخصصی جزوه‌ها و آزمون‌های مدرسه‌ای (پایه‌های ۴ تا ۹)، پرامپت‌های حرفه‌ای، دوره‌های ادیت ویدیو با InShot و ابزارهای هوش مصنوعی.
+            </p>
+            
+            <div class="pt-4 flex justify-center gap-4">
+                <a href="#school" class="bg-green-500 hover:bg-green-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center">
+                    <i class="fas fa-book ml-2"></i>📚 بخش درس و مدرسه
+                </a>
+                <a href="#ai" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center">
+                    <i class="fas fa-magic ml-2"></i>🤖 بخش دنیای AI
+                </a>
+            </div>
+        </div>
     </section>
 
-    <div class="container">
-        
+    <!-- ۳. محتوای اصلی -->
+    <main class="max-w-7xl mx-auto px-4 py-12 space-y-16">
+
         <!-- بخش درس و مدرسه -->
-        <h2 id="school" class="section-title">📚 درس و مدرسه</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>پایه‌های چهارم تا هفتم</h3>
-                <p>شامل جزوات تخصصی، نمونه سوالات امتحانی و آزمون‌های دوره‌ای.</p>
-                <a href="#" class="btn">مشاهده جزوات</a>
+        <section id="school" class="space-y-6">
+            <div class="flex justify-between items-end border-b pb-4 border-slate-200">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900"><i class="fas fa-graduation-cap text-green-500 ml-2"></i>📚 درس و مدرسه</h2>
+                    <p class="text-slate-500 text-sm mt-1">سؤال، آزمون، جزوه و برنامه‌ریزی درسی برای پایه‌های ۴ تا ۹</p>
+                </div>
+            </div>
+
+            <!-- گرید محصولات مدرسه -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- کارت نمونه -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition">
+                    <span class="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-md">پایه هفتم</span>
+                    <h3 class="font-bold text-slate-800 mt-3 mb-1">پک شب امتحان ریاضی</h3>
+                    <p class="text-slate-500 text-xs mb-4">شامل جزوه جمع‌بندی + پاسخ‌نامه تشریحی</p>
+                    <div class="flex justify-between items-center pt-2 border-t text-sm">
+                        <span class="font-bold text-slate-900">رایگان</span>
+                        <button class="bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-600 transition">دانلود / خرید</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- بخش دنیای AI -->
+        <section id="ai" class="space-y-6">
+            <div class="flex justify-between items-end border-b pb-4 border-slate-200">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900"><i class="fas fa-robot text-purple-500 ml-2"></i>🤖 دنیای AI</h2>
+                    <p class="text-slate-500 text-sm mt-1">پرامپت‌های ساخت عکس، آموزش تولید محتوا با InShot و ابزارهای هوش مصنوعی</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- دوره InShot -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <div class="text-3xl mb-3">🎬</div>
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">آموزش جامع InShot</h3>
+                    <p class="text-slate-500 text-xs mb-4">تولید محتوا و ساخت ویدیوهای حرفه‌ای با موبایل توسط مدیر.</p>
+                    <button class="w-full bg-purple-50 text-purple-600 font-bold py-2 rounded-xl text-sm hover:bg-purple-100 transition">مشاهده دوره</button>
+                </div>
+
+                <!-- بسته پرامپت -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <div class="text-3xl mb-3">🎨</div>
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">پک پرامپت ساخت عکس</h3>
+                    <p class="text-slate-500 text-xs mb-4">دستورات آماده برای Midjourney و ChatGPT.</p>
+                    <button class="w-full bg-purple-50 text-purple-600 font-bold py-2 rounded-xl text-sm hover:bg-purple-100 transition">مشاهده پک</button>
+                </div>
+
+                <!-- سفارش اختصاصی -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <div class="text-3xl mb-3">✨</div>
+                    <h3 class="font-bold text-slate-800 text-lg mb-2">سفارش پرامپت اختصاصی</h3>
+                    <p class="text-slate-500 text-xs mb-4">درخواست پرامپت سفارشی طبق نیاز شما.</p>
+                    <button class="w-full bg-purple-600 text-white font-bold py-2 rounded-xl text-sm hover:bg-purple-700 transition">ثبت سفارش</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- بخش نظرات و امتیازدهی -->
+        <section class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-4">
+            <h3 class="text-lg font-bold text-slate-900"><i class="fas fa-star text-amber-400 ml-1"></i>نظرات و امتیاز کاربران</h3>
+            <div class="flex items-center space-x-2 space-x-reverse text-amber-400 text-sm">
+                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                <span class="text-slate-600 text-xs font-bold mr-2">۴.۹ از ۵ (از میان ۳۵ نظر)</span>
+            </div>
+            
+            <!-- فرم ثبت نظر -->
+            <div class="bg-slate-50 p-4 rounded-xl space-y-3">
+                <p class="text-xs font-bold text-slate-700">نظر خود را بنویسید (پس از بررسی مدیر منتشر می‌شود):</p>
+                <textarea placeholder="متن نظر شما..." class="w-full p-3 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <button class="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition">ثبت نظر</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- مودال ثبت‌نام / ورود (پاپ‌آپ) -->
+    <div id="auth-modal" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-4">
+            <button onclick="closeModal('auth-modal')" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            
+            <h3 class="text-xl font-black text-center text-slate-900">ثبت‌نام در آکادمی</h3>
+            <p class="text-xs text-slate-500 text-center">اطلاعات خود را وارد کنید</p>
+
+            <form class="space-y-3 text-xs">
+                <input type="text" placeholder="نام و نام خانوادگی" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="text" placeholder="شماره تماس (مثلاً 0912...)" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="text" placeholder="نام کاربری (یکتا)" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="password" placeholder="رمز عبور" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                
+                <div class="flex items-center space-x-2 space-x-reverse pt-1">
+                    <input type="checkbox" id="captcha" class="rounded">
+                    <label for="captcha" class="text-slate-600">من ربات نیستم</label>
+                </div>
+
+                <button type="button" onclick="showOtpStep()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">ارسال کد تأیید</button>
+            </form>
+
+            <!-- بخش ورود کد ۶ رقمی -->
+            <div id="otp-section" class="hidden space-y-3 pt-3 border-t border-slate-100">
+                <p class="text-xs text-amber-600 font-bold text-center">کد ۶ رقمی تأیید برای مدیر ارسال شد. پس از دریافت وارد کنید:</p>
+                <input type="text" placeholder="- - - - - -" class="w-full p-3 rounded-xl border border-slate-200 text-center font-mono text-lg tracking-widest focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <button type="button" onclick="alert('🎉 خوش اومدی! ثبت‌نام با موفقیت انجام شد.')" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition">تأیید و تکمیل ثبت‌نام</button>
             </div>
         </div>
-
-        <!-- بخش دنیای هوش مصنوعی -->
-        <h2 id="ai" class="section-title">🤖 دنیای AI</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>دوره InShot</h3>
-                <p>آموزش حرفه‌ای ادیت ویدیو و تولید محتوا با موبایل.</p>
-                <a href="#" class="btn">ورود به دوره</a>
-            </div>
-            <div class="card">
-                <h3>پکیج پرامپت‌های عکس و AI</h3>
-                <p>مجموعه دستورات آماده برای تولید تصویر با هوش مصنوعی.</p>
-                <a href="#" class="btn">دریافت پکیج</a>
-            </div>
-            <div class="card">
-                <h3>آموزش NotebookLM و Gemini</h3>
-                <p>یادگیری کار با ابزارهای هوشمند تحلیلی و خلاصه‌سازی.</p>
-                <a href="#" class="btn">مشاهده دوره</a>
-            </div>
-        </div>
-
     </div>
 
-    <footer>
+    <!-- مودال ورود مدیر -->
+    <div id="admin-modal" class="modal fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative space-y-4">
+            <button onclick="closeModal('admin-modal')" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            
+            <h3 class="text-lg font-black text-center text-slate-900"><i class="fas fa-user-shield ml-2 text-blue-600"></i>ورود به پنل مدیریت</h3>
+
+            <form class="space-y-3 text-xs">
+                <input type="text" placeholder="نام کاربری مدیر" class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" placeholder="رمز عبور مدیر" class="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="button" onclick="alert('دسترسی مدیریت نیازمند متصل شدن به بک‌اند امن می‌باشد.')" class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition">ورود به پنل مدیریت</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- فوتر -->
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center text-xs border-t border-slate-800">
         <p>© تمامی حقوق برای آکادمی هوش برتر محفوظ است.</p>
     </footer>
 
+    <!-- اسکریپت کنترل مودال‌ها -->
+    <script>
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function showOtpStep() { document.getElementById('otp-section').classList.remove('hidden'); }
+    </script>
 </body>
 </html>
+       
