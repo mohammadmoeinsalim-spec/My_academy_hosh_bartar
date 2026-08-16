@@ -3,135 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- متاتگ اختصاصی اینماد -->
     <meta name="enamad" content="24028517"/>
-    <title>آکادمی هوش برتر | مرجع آموزش هوش مصنوعی و دروس مدرسه</title>
-    
-    <!-- لینک Tailwind CSS و فونت‌وزیر -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>آکادمی هوش برتر</title>
     <style>
-        @import url('https://v1.fontapi.ir/css/Vazirmatn');
-        body { font-family: 'Vazirmatn', sans-serif; }
+        @font-face {
+            font-family: 'BNazanin';
+            src: local('B Nazanin'), local('BNazanin');
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'BNazanin', 'Vazirmatn', Tahoma, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            direction: rtl;
+        }
+
+        header {
+            background-color: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-w: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #475569;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: #2563eb;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            color: #1e3a8a;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #475569;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            border-right: 4px solid #2563eb;
+            padding-right: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            color: #64748b;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #2563eb;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        footer {
+            background-color: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 4rem;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body>
 
-    <!-- هدر بالای سایت -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap justify-between items-center">
-            <div class="flex items-center space-x-3 space-x-reverse">
-                <div class="bg-blue-600 text-white p-2 rounded-xl text-xl font-bold">🎓</div>
-                <h1 class="text-xl font-bold text-blue-900">آکادمی هوش برتر</h1>
-            </div>
-            <nav class="flex space-x-2 space-x-reverse mt-2 sm:mt-0 text-sm font-medium">
-                <a href="#school" class="px-3 py-2 rounded-lg hover:bg-blue-50 text-gray-700 hover:text-blue-600 transition">درس و مدرسه</a>
-                <a href="#ai" class="px-3 py-2 rounded-lg hover:bg-blue-50 text-gray-700 hover:text-blue-600 transition">دنیای AI</a>
-                <a href="#login" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">ورود / ثبت‌نام</a>
+    <header>
+        <div class="nav-container">
+            <div class="logo">آکادمی هوش برتر</div>
+            <nav>
+                <a href="#school">درس و مدرسه</a>
+                <a href="#ai">دنیای AI</a>
+                <a href="#admin">پنل مدیریت</a>
             </nav>
         </div>
     </header>
 
-    <!-- بنر خوش‌آمدگویی اصلی -->
-    <section class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white py-16 px-4 text-center">
-        <div class="max-w-4xl mx-auto space-y-4">
-            <h2 class="text-3xl md:text-5xl font-extrabold leading-tight">به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h2>
-            <p class="text-blue-100 text-base md:text-lg max-w-2xl mx-auto">
-                ارائه‌دهنده بهترین دوره‌های یادگیری هوش مصنوعی، ابزارهای تولید محتوا، پکیج‌های پرامپت‌نویسی و جزوات تخصصی پایه‌های چهارم تا هفتم.
-            </p>
-            <div class="pt-4 flex flex-wrap justify-center gap-3">
-                <a href="#ai" class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-lg transition">مشاهده دوره‌های AI</a>
-                <a href="#school" class="bg-white/10 hover:bg-white/20 text-white font-medium px-6 py-3 rounded-xl backdrop-blur-sm transition">جزوه‌های مدرسه</a>
-            </div>
-        </div>
+    <section class="hero">
+        <h1>به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1>
+        <p>ارائه‌دهنده دوره‌های هوش مصنوعی، پکیج‌های پرامپت، جزوات مدرسه‌ای و آموزش‌های کاربردی.</p>
     </section>
 
-    <!-- محتوای اصلی -->
-    <main class="max-w-6xl mx-auto px-4 py-12 space-y-16">
+    <div class="container">
+        
+        <!-- بخش درس و مدرسه -->
+        <h2 id="school" class="section-title">📚 درس و مدرسه</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>پایه‌های چهارم تا هفتم</h3>
+                <p>شامل جزوات تخصصی، نمونه سوالات امتحانی و آزمون‌های دوره‌ای.</p>
+                <a href="#" class="btn">مشاهده جزوات</a>
+            </div>
+        </div>
 
         <!-- بخش دنیای هوش مصنوعی -->
-        <section id="ai" class="space-y-6">
-            <div class="border-r-4 border-blue-600 pr-4">
-                <h3 class="text-2xl font-bold text-gray-900">🤖 دنیای هوش مصنوعی و تولید محتوا</h3>
-                <p class="text-gray-500 text-sm mt-1">مهارت‌های آینده را از همین امروز یاد بگیرید</p>
+        <h2 id="ai" class="section-title">🤖 دنیای AI</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>دوره InShot</h3>
+                <p>آموزش حرفه‌ای ادیت ویدیو و تولید محتوا با موبایل.</p>
+                <a href="#" class="btn">ورود به دوره</a>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- کارت دوره InShot -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <div class="text-4xl mb-4">📱</div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-2">دوره جامع تولید محتوا با InShot</h4>
-                    <p class="text-gray-600 text-sm mb-4">آموزش کامل ادیت ویدیو، ساخت کلیپ‌های اینستاگرامی و ساخت تیزر با موبایل.</p>
-                    <a href="#" class="inline-block w-full text-center bg-blue-50 text-blue-600 py-2 rounded-xl font-medium hover:bg-blue-100 transition">مشاهده دوره</a>
-                </div>
-
-                <!-- کارت بسته پرامپت‌ها -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <div class="text-4xl mb-4">🎨</div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-2">پکیج پرامپت‌های عکاسی و هوش مصنوعی</h4>
-                    <p class="text-gray-600 text-sm mb-4">مجموعه بی‌نظیر دستورات آماده برای ساخت تصاویر حرفه‌ای با Midjourney و ChatGPT.</p>
-                    <a href="#" class="inline-block w-full text-center bg-blue-50 text-blue-600 py-2 rounded-xl font-medium hover:bg-blue-100 transition">دانلود پکیج</a>
-                </div>
-
-                <!-- کارت آموزش NotebookLM & Gemini -->
-                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
-                    <div class="text-4xl mb-4">⚡</div>
-                    <h4 class="text-lg font-bold text-gray-800 mb-2">کاربرد هوش مصنوعی در تحلیلی علمی</h4>
-                    <p class="text-gray-600 text-sm mb-4">آموزش کار با Gemini و NotebookLM برای خلاصه کردن کتاب‌ها و ساخت جزوه.</p>
-                    <a href="#" class="inline-block w-full text-center bg-blue-50 text-blue-600 py-2 rounded-xl font-medium hover:bg-blue-100 transition">مشاهده دوره</a>
-                </div>
+            <div class="card">
+                <h3>پکیج پرامپت‌های عکس و AI</h3>
+                <p>مجموعه دستورات آماده برای تولید تصویر با هوش مصنوعی.</p>
+                <a href="#" class="btn">دریافت پکیج</a>
             </div>
-        </section>
-
-        <!-- بخش درس و مدرسه -->
-        <section id="school" class="space-y-6">
-            <div class="border-r-4 border-green-600 pr-4">
-                <h3 class="text-2xl font-bold text-gray-900">📚 درس و مدرسه (پایه‌های ۴ تا ۷)</h3>
-                <p class="text-gray-500 text-sm mt-1">جزوه‌ها، نمونه سوالات امتحانی و درسنامه‌های گام‌به‌گام</p>
+            <div class="card">
+                <h3>آموزش NotebookLM و Gemini</h3>
+                <p>یادگیری کار با ابزارهای هوشمند تحلیلی و خلاصه‌سازی.</p>
+                <a href="#" class="btn">مشاهده دوره</a>
             </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl text-center shadow-sm border border-gray-100 hover:border-green-500 transition">
-                    <span class="text-3xl block mb-2">4️⃣</span>
-                    <h5 class="font-bold text-gray-800">پایه چهارم</h5>
-                    <p class="text-xs text-gray-500 mt-1">جزوه + نمونه سوال</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl text-center shadow-sm border border-gray-100 hover:border-green-500 transition">
-                    <span class="text-3xl block mb-2">5️⃣</span>
-                    <h5 class="font-bold text-gray-800">پایه پنجم</h5>
-                    <p class="text-xs text-gray-500 mt-1">جزوه + نمونه سوال</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl text-center shadow-sm border border-gray-100 hover:border-green-500 transition">
-                    <span class="text-3xl block mb-2">6️⃣</span>
-                    <h5 class="font-bold text-gray-800">پایه ششم</h5>
-                    <p class="text-xs text-gray-500 mt-1">جزوه + آزمون هوش</p>
-                </div>
-                <div class="bg-white p-5 rounded-2xl text-center shadow-sm border border-gray-100 hover:border-green-500 transition">
-                    <span class="text-3xl block mb-2">7️⃣</span>
-                    <h5 class="font-bold text-gray-800">پایه هفتم</h5>
-                    <p class="text-xs text-gray-500 mt-1">جزوه + شب امتحان</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- بخش ورود / ثبت نام -->
-        <section id="login" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
-            <h3 class="text-xl font-bold text-gray-800 mb-2">ورود به حساب کاربری</h3>
-            <p class="text-gray-500 text-sm mb-6">برای دسترسی به دوره‌ها شماره موبایل خود را وارد کنید</p>
-            <form class="space-y-4">
-                <input type="text" placeholder="شماره موبایل (مثلا 0912...)" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-center text-sm">
-                <button type="button" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition">دریافت کد ورود</button>
-            </form>
-        </section>
-
-    </main>
-
-    <!-- فوتر پایین سایت -->
-    <footer class="bg-gray-900 text-gray-400 py-8 text-center text-sm border-t border-gray-800">
-        <div class="max-w-6xl mx-auto px-4 space-y-3">
-            <p>© تمامی حقوق برای آکادمی هوش برتر محفوظ است.</p>
-            <p class="text-xs text-gray-600">طراحی شده برای یادگیری سریع و مدرن</p>
         </div>
+
+    </div>
+
+    <footer>
+        <p>© تمامی حقوق برای آکادمی هوش برتر محفوظ است.</p>
     </footer>
 
 </body>
