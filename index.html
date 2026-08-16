@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- عنوان موقت درخواستی برای تاییدیه اینماد -->
-    <title>24028517</title>
-    <!-- متاتگ اینماد دقیقاً مطابق درخواست سامانه -->
+    <title>آکادمی هوش برتر</title>
     <meta name="enamad" content="24028517" />
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -69,7 +67,7 @@
         function App() {
             const [state, setState] = useState(() => { 
                 try { 
-                    const local = localStorage.getItem('site_app_data_v12'); 
+                    const local = localStorage.getItem('site_app_data_v13'); 
                     return local ? JSON.parse(local) : INITIAL_STATE; 
                 } catch (e) { 
                     console.warn("خطا در خواندن LocalStorage:", e);
@@ -87,7 +85,7 @@
             
             useEffect(() => { 
                 try { 
-                    localStorage.setItem('site_app_data_v12', JSON.stringify(state)); 
+                    localStorage.setItem('site_app_data_v13', JSON.stringify(state)); 
                 } catch (e) { 
                     console.error("خطا در ذخیره LocalStorage:", e); 
                 } 
