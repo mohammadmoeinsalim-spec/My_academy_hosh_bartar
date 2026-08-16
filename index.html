@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سامانه جامع آموزش، فایل و هوش مصنوعی</title>
+    <title>آکادمی هوش برتر | سامانه جامع آموزش و هوش مصنوعی</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -41,6 +41,7 @@
             orders: [], messages: [], reviews: [],
             merchantId: 'Blu_test_JxueQurLvooK6thaCwvkV4cCvavtmwDMuJRzO8ap'
         };
+
         function Toast({ msg, type, onClose }) {
             useEffect(() => { const timer = setTimeout(onClose, 3500); return () => clearTimeout(timer); }, []);
             return (
@@ -49,50 +50,107 @@
                 </div>
             );
         }
+
         function App() {
-            const [state, setState] = useState(() => { try { const local = localStorage.getItem('site_app_data_v7'); return local ? JSON.parse(local) : INITIAL_STATE; } catch (e) { return INITIAL_STATE; } });
-            const [view, setView] = useState('welcome'); const [toast, setToast] = useState(null); const [pendingSignup, setPendingSignup] = useState(null); const [pendingResetPhone, setPendingResetPhone] = useState(''); const [selectedProduct, setSelectedProduct] = useState(null); const [searchTerm, setSearchTerm] = useState('');
+            const [state, setState] = useState(() => { 
+                try { 
+                    const local = localStorage.getItem('site_app_data_v7'); 
+                    return local ? JSON.parse(local) : INITIAL_STATE; 
+                } catch (e) { 
+                    return INITIAL_STATE; 
+                } 
+            });
+            const [view, setView] = useState('welcome'); 
+            const [toast, setToast] = useState(null); 
+            const [pendingSignup, setPendingSignup] = useState(null); 
+            const [pendingResetPhone, setPendingResetPhone] = useState(''); 
+            const [selectedProduct, setSelectedProduct] = useState(null); 
+            const [searchTerm, setSearchTerm] = useState('');
             const [schoolGradeFilter, setSchoolGradeFilter] = useState('همه');
             const [aiCategoryFilter, setAiCategoryFilter] = useState('همه');
             
-            useEffect(() => { try { localStorage.setItem('site_app_data_v7', JSON.stringify(state)); } catch (e) { console.error(e); } }, [state]);
+            useEffect(() => { 
+                try { 
+                    localStorage.setItem('site_app_data_v7', JSON.stringify(state)); 
+                } catch (e) { 
+                    console.error(e); 
+                } 
+            }, [state]);
+
             const showToast = (msg, type = 'success') => setToast({ msg, type });
             
-            const ADMIN_USER = "محمد معين سليم صاحب اینجا هست"; const ADMIN_PASS = "M9!vR2#qL7@xP4$z";
+            const ADMIN_USER = "محمد معين سليم صاحب اینجا هست"; 
+            const ADMIN_PASS = "M9!vR2#qL7@xP4$z";
 
             const handleSignupStep1 = (formData) => {
-                if (state.users.some(u => u.phone === formData.phone) || state.users.some(u => u.username === formData.username)) { showToast('مشخصات تکراری است.', 'error'); return; }
-                if (formData.password !== formData.confirmPassword) { showToast('رمزها یکسان نیستند.', 'error'); return; }
+                if (state.users.some(u => u.phone === formData.phone) || state.users.some(u => u.username === formData.username)) { 
+                    showToast('مشخصات تکراری است.', 'error'); 
+                    return; 
+                }
+                if (formData.password !== formData.confirmPassword) { 
+                    showToast('رمزها یکسان نیستند.', 'error'); 
+                    return; 
+                }
                 const code = Math.floor(100000 + Math.random() * 900000).toString();
-                setState(prev => ({ ...prev, otpRequests: [{ id: Date.now().toString(), phone: formData.phone, type: 'signup', code, formData, createdAt: new Date().toLocaleTimeString('fa-IR'), status: 'pending' }, ...prev.otpRequests] }));
-                setPendingSignup({ ...formData, code }); setView('otp_verify'); showToast('کد صادر شد.');
+                setState(prev => ({ 
+                    ...prev, 
+                    otpRequests: [{ id: Date.now().toString(), phone: formData.phone, type: 'signup', code, formData, createdAt: new Date().toLocaleTimeString('fa-IR'), status: 'pending' }, ...prev.otpRequests] 
+                }));
+                setPendingSignup({ ...formData, code }); 
+                setView('otp_verify'); 
+                showToast('کد تأیید ارسال شد.');
             };
+
             const handleVerifyOtp = (inputCode) => {
                 if (pendingSignup && inputCode === pendingSignup.code) {
                     const newUser = { id: Date.now().toString(), name: pendingSignup.name, phone: pendingSignup.phone, username: pendingSignup.username, passwordHash: 'hash_' + pendingSignup.password, createdAt: new Date().toLocaleDateString('fa-IR'), orderCount: 0 };
-                    setState(prev => ({ ...prev, users: [...prev.users, newUser], currentUser: newUser })); setPendingSignup(null); setView('welcome_user');
+                    setState(prev => ({ ...prev, users: [...prev.users, newUser], currentUser: newUser })); 
+                    setPendingSignup(null); 
+                    setView('welcome_user');
                 } else if (pendingResetPhone) {
                     const req = state.otpRequests.find(r => r.phone === pendingResetPhone && r.type === 'reset');
-                    if (req && req.code === inputCode) setView('new_password'); else showToast('کد اشتباه است.', 'error');
-                } else { showToast('کد اشتباه است.', 'error'); }
+                    if (req && req.code === inputCode) setView('new_password'); 
+                    else showToast('کد اشتباه است.', 'error');
+                } else { 
+                    showToast('کد اشتباه است.', 'error'); 
+                }
             };
+
             const handleLogin = (username, password) => {
-                if (username.trim() === ADMIN_USER.trim() && password === ADMIN_PASS) { setState(prev => ({ ...prev, currentUser: { username: ADMIN_USER, name: 'مدیر کل', role: 'admin' } })); setView('admin_dashboard'); showToast('خوش آمدید مدیر محترم 👑'); return; }
+                if (username.trim() === ADMIN_USER.trim() && password === ADMIN_PASS) { 
+                    setState(prev => ({ ...prev, currentUser: { username: ADMIN_USER, name: 'مدیر کل', role: 'admin' } })); 
+                    setView('admin_dashboard'); 
+                    showToast('خوش آمدید مدیر محترم 👑'); 
+                    return; 
+                }
                 const user = state.users.find(u => u.username === username && u.passwordHash === 'hash_' + password);
-                if (user) { setState(prev => ({ ...prev, currentUser: { ...user, role: 'user' } })); setView('school'); showToast(`خوش آمدید ${user.name}`); } else { showToast('❌ نام کاربری یا رمز عبور اشتباه است.', 'error'); }
+                if (user) { 
+                    setState(prev => ({ ...prev, currentUser: { ...user, role: 'user' } })); 
+                    setView('school'); 
+                    showToast(`خوش آمدید ${user.name}`); 
+                } else { 
+                    showToast('❌ نام کاربری یا رمز عبور اشتباه است.', 'error'); 
+                }
             };
+
             const handleForgotPassword = (phone) => {
-                const user = state.users.find(u => u.phone === phone); if (!user) { showToast('کاربر یافت نشد.', 'error'); return; }
+                const user = state.users.find(u => u.phone === phone); 
+                if (!user) { showToast('کاربر یافت نشد.', 'error'); return; }
                 const code = Math.floor(100000 + Math.random() * 900000).toString();
                 setState(prev => ({ ...prev, otpRequests: [{ id: Date.now().toString(), phone, type: 'reset', code, createdAt: new Date().toLocaleTimeString('fa-IR'), status: 'pending' }, ...prev.otpRequests] }));
-                setPendingResetPhone(phone); setView('otp_verify'); showToast('کد صادر شد.');
+                setPendingResetPhone(phone); 
+                setView('otp_verify'); 
+                showToast('کد صادر شد.');
             };
-            const handleSaveNewPassword = (newPass) => { setState(prev => ({ ...prev, users: prev.users.map(u => u.phone === pendingResetPhone ? { ...u, passwordHash: 'hash_' + newPass } : u) })); showToast('رمز تغییر یافت.'); setPendingResetPhone(''); setView('login'); };
-            
+
             const startPayment = (product) => {
-                if (!state.currentUser) { showToast('لطفا ابتدا وارد حساب خود شوید.', 'error'); setView('login'); return; }
+                if (!state.currentUser) { 
+                    showToast('لطفا ابتدا وارد حساب خود شوید.', 'error'); 
+                    setView('login'); 
+                    return; 
+                }
                 setSelectedProduct(product);
-                setView('gateway_screen');
+                setView('gateway_redirect');
             };
 
             const completePaymentSuccess = () => {
@@ -111,13 +169,87 @@
             return (
                 <div className="min-h-screen flex flex-col justify-between">
                     <div>
-                        <header className="sticky top-0 z-40 glass border-b border-slate-200 shadow-sm"><div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between"><div className="flex items-center gap-6"><button onClick={() => setView('welcome')} className="text-xl font-black bg-gradient-to-r from-indigo-600 to-sky-500 bg-clip-text text-transparent">آکادمی هوش برتر</button><nav className="hidden md:flex items-center gap-2"><button onClick={() => setView('school')} className="px-3 py-2 text-sm font-semibold">📚 درس و مدرسه</button><button onClick={() => setView('ai')} className="px-3 py-2 text-sm font-semibold">🤖 دنیای AI</button></nav></div><div>{state.currentUser ? <div className="flex items-center gap-2">{state.currentUser.role === 'admin' ? <button onClick={() => setView('admin_dashboard')} className="bg-amber-50 text-slate-900 px-4 py-2 rounded-xl text-sm font-bold shadow">🛡️ پنل مدیریت</button> : <button onClick={() => setView('user_panel')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold">👤 پنل کاربری</button>}<button onClick={() => { setState(prev => ({ ...prev, currentUser: null })); setView('welcome'); }} className="text-rose-500 p-2 text-sm font-bold">خروج</button></div> : <div className="flex items-center gap-2"><button onClick={() => setView('login')} className="text-slate-700 text-sm font-semibold px-2">ورود</button><button onClick={() => setView('signup')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">ثبت‌نام</button></div>}</div></div></header>
+                        {/* هدر سایت */}
+                        <header className="sticky top-0 z-40 glass border-b border-slate-200 shadow-sm">
+                            <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+                                <div className="flex items-center gap-6">
+                                    <button onClick={() => setView('welcome')} className="text-xl font-black bg-gradient-to-r from-indigo-600 to-sky-500 bg-clip-text text-transparent">آکادمی هوش برتر</button>
+                                    <nav className="hidden md:flex items-center gap-2">
+                                        <button onClick={() => setView('school')} className="px-3 py-2 text-sm font-semibold">📚 درس و مدرسه</button>
+                                        <button onClick={() => setView('ai')} className="px-3 py-2 text-sm font-semibold">🤖 دنیای AI</button>
+                                        <button onClick={() => setView('rules')} className="px-3 py-2 text-sm font-semibold text-slate-600">قوانین و مقررات</button>
+                                        <button onClick={() => setView('contact')} className="px-3 py-2 text-sm font-semibold text-slate-600">تماس با ما</button>
+                                    </nav>
+                                </div>
+                                <div>
+                                    {state.currentUser ? (
+                                        <div className="flex items-center gap-2">
+                                            {state.currentUser.role === 'admin' ? 
+                                                <button onClick={() => setView('admin_dashboard')} className="bg-amber-50 text-slate-900 px-4 py-2 rounded-xl text-sm font-bold shadow">🛡️ پنل مدیریت</button> : 
+                                                <button onClick={() => setView('user_panel')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold">👤 پنل کاربری</button>
+                                            }
+                                            <button onClick={() => { setState(prev => ({ ...prev, currentUser: null })); setView('welcome'); }} className="text-rose-500 p-2 text-sm font-bold">خروج</button>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <button onClick={() => setView('login')} className="text-slate-700 text-sm font-semibold px-2">ورود</button>
+                                            <button onClick={() => setView('signup')} className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-semibold">ثبت‌نام</button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </header>
                         
-                        {view === 'welcome' && <div className="max-w-5xl mx-auto px-4 py-16 text-center"><h1 className="text-4xl font-black text-slate-900 mb-6">به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1><div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"><div onClick={() => setView('school')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-emerald-500 transition"><div className="text-3xl mb-4">📚</div><h2 className="text-2xl font-bold mb-2">درس و مدرسه</h2><p className="text-slate-500 text-sm">پایه‌های چهارم تا نهم (جزوه، آزمون، شب امتحان)</p></div><div onClick={() => setView('ai')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-purple-500 transition"><div className="text-3xl mb-4">🤖</div><h2 className="text-2xl font-bold mb-2">دنیای AI</h2><p className="text-slate-500 text-sm">پرامپت‌ها، آموزش هوش مصنوعی و دوره InShot</p></div></div></div>}
+                        {/* صفحه‌های محتوا */}
+                        {view === 'welcome' && (
+                            <div className="max-w-5xl mx-auto px-4 py-16 text-center">
+                                <h1 className="text-4xl font-black text-slate-900 mb-6">به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1>
+                                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                                    <div onClick={() => setView('school')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-emerald-500 transition">
+                                        <div className="text-3xl mb-4">📚</div>
+                                        <h2 className="text-2xl font-bold mb-2">درس و مدرسه</h2>
+                                        <p className="text-slate-500 text-sm">پایه‌های چهارم تا نهم (جزوه، آزمون، شب امتحان)</p>
+                                    </div>
+                                    <div onClick={() => setView('ai')} className="bg-white p-8 rounded-3xl border shadow-xl text-right cursor-pointer hover:border-purple-500 transition">
+                                        <div className="text-3xl mb-4">🤖</div>
+                                        <h2 className="text-2xl font-bold mb-2">دنیای AI</h2>
+                                        <p className="text-slate-500 text-sm">پرامپت‌ها، آموزش هوش مصنوعی و دوره InShot</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         
-                        {view === 'signup' && <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border"><h2 className="text-2xl font-bold text-center mb-6">ثبت‌نام کاربران</h2><form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); handleSignupStep1({ name: f.get('name'), phone: f.get('phone'), username: f.get('username'), password: f.get('password'), confirmPassword: f.get('confirmPassword') }); }} className="space-y-4"><div><label className="text-xs font-bold block mb-1">نام و نام خانوادگی</label><input required name="name" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">شماره تماس</label><input required name="phone" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">نام کاربری</label><input required name="username" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">رمز عبور</label><input required type="password" name="password" className="w-full p-3 border rounded-xl text-sm" /></div><div><label className="text-xs font-bold block mb-1">تکرار رمز</label><input required type="password" name="confirmPassword" className="w-full p-3 border rounded-xl text-sm" /></div><button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">دریافت کد تأیید</button></form></div>}
-                        {view === 'otp_verify' && <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl text-center"><h2 className="text-xl font-bold mb-6">تأیید شماره همراه</h2><form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(e.target.code.value); }} className="space-y-4"><input required name="code" maxLength="6" className="w-full text-center text-2xl font-bold p-3 border rounded-xl" placeholder="------" /><button type="submit" className="w-full bg-amber-50 text-amber-900 font-bold py-3 rounded-xl">تأیید کد</button></form></div>}
-                        {view === 'welcome_user' && <div className="max-w-xl mx-auto my-16 p-8 bg-white rounded-3xl text-center"><h2>🎉 خوش اومدی، {state.currentUser?.name}!</h2><p className="my-4">ثبت‌نام شما با موفقیت تکمیل شد ❤️</p><button onClick={() => setView('school')} className="w-full bg-emerald-600 text-white py-3 rounded-xl">ورود به بخش دروس</button></div>}
+                        {view === 'signup' && (
+                            <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border">
+                                <h2 className="text-2xl font-bold text-center mb-6">ثبت‌نام کاربران</h2>
+                                <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); handleSignupStep1({ name: f.get('name'), phone: f.get('phone'), username: f.get('username'), password: f.get('password'), confirmPassword: f.get('confirmPassword') }); }} className="space-y-4">
+                                    <div><label className="text-xs font-bold block mb-1">نام و نام خانوادگی</label><input required name="name" className="w-full p-3 border rounded-xl text-sm" /></div>
+                                    <div><label className="text-xs font-bold block mb-1">شماره تماس</label><input required name="phone" className="w-full p-3 border rounded-xl text-sm" placeholder="09123456789" /></div>
+                                    <div><label className="text-xs font-bold block mb-1">نام کاربری</label><input required name="username" className="w-full p-3 border rounded-xl text-sm" /></div>
+                                    <div><label className="text-xs font-bold block mb-1">رمز عبور</label><input required type="password" name="password" className="w-full p-3 border rounded-xl text-sm" /></div>
+                                    <div><label className="text-xs font-bold block mb-1">تکرار رمز</label><input required type="password" name="confirmPassword" className="w-full p-3 border rounded-xl text-sm" /></div>
+                                    <button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">دریافت کد تأیید</button>
+                                </form>
+                            </div>
+                        )}
+
+                        {view === 'otp_verify' && (
+                            <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl text-center border">
+                                <h2 className="text-xl font-bold mb-6">تأیید شماره همراه</h2>
+                                <form onSubmit={(e) => { e.preventDefault(); handleVerifyOtp(e.target.code.value); }} className="space-y-4">
+                                    <input required name="code" maxLength="6" className="w-full text-center text-2xl font-bold p-3 border rounded-xl" placeholder="------" />
+                                    <button type="submit" className="w-full bg-amber-500 text-white font-bold py-3 rounded-xl">تأیید کد</button>
+                                </form>
+                            </div>
+                        )}
+
+                        {view === 'welcome_user' && (
+                            <div className="max-w-xl mx-auto my-16 p-8 bg-white rounded-3xl text-center border shadow-lg">
+                                <h2>🎉 خوش اومدی، {state.currentUser?.name}!</h2>
+                                <p className="my-4 text-slate-600 text-sm">ثبت‌نام شما با موفقیت تکمیل شد ❤️</p>
+                                <button onClick={() => setView('school')} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold">ورود به بخش دروس</button>
+                            </div>
+                        )}
                         
                         {view === 'login' && (
                             <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border">
@@ -131,16 +263,6 @@
                             </div>
                         )}
                         
-                        {view === 'forgot_password' && (
-                            <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl shadow-xl border text-center">
-                                <h2 className="text-xl font-bold mb-4">بازیابی رمز عبور</h2>
-                                <form onSubmit={(e) => { e.preventDefault(); handleForgotPassword(e.target.phone.value); }} className="space-y-4">
-                                    <input required name="phone" placeholder="شماره تماس ثبت شده" className="w-full p-3 border rounded-xl text-sm text-center" />
-                                    <button type="submit" className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl">ارسال کد بازیابی</button>
-                                </form>
-                            </div>
-                        )}
-
                         {view === 'school' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-emerald-600 text-white p-8 rounded-3xl mb-8 flex justify-between items-center">
@@ -155,7 +277,7 @@
                                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{filteredSchoolPacks.map(p => <div key={p.id} className="bg-white border rounded-2xl p-4 flex flex-col justify-between shadow-sm"><span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded self-start mb-2">{p.grade} - {p.subject}</span><h3 className="font-bold text-lg">{p.title}</h3><p className="text-xs text-slate-500 my-2">{p.desc}</p><div className="flex justify-between items-center border-t pt-3 mt-3"><span>{p.price.toLocaleString()} تومان</span><button onClick={() => { setSelectedProduct(p); setView('product_detail'); }} className="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">مشاهده و خرید</button></div></div>)}</div>}
                             </div>
                         )}
-                        
+
                         {view === 'ai' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-purple-600 text-white p-8 rounded-3xl mb-8">
@@ -170,7 +292,7 @@
                                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">{filteredAiPacks.map(p => <div key={p.id} className="bg-white border rounded-2xl p-4 flex flex-col justify-between shadow-sm"><span className="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded self-start mb-2">{p.category}</span><h3 className="font-bold text-lg">{p.title}</h3><p className="text-xs text-slate-500 my-2">{p.desc}</p><div className="flex justify-between items-center border-t pt-3 mt-3"><span>{p.price.toLocaleString()} تومان</span><button onClick={() => { setSelectedProduct(p); setView('product_detail'); }} className="bg-purple-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">مشاهده و خرید</button></div></div>)}</div>}
                             </div>
                         )}
-                        
+
                         {view === 'product_detail' && selectedProduct && (
                             <div className="max-w-md mx-auto p-6 bg-white rounded-3xl border shadow-xl my-8">
                                 <h2 className="text-xl font-black border-b pb-3 text-slate-900">🧾 پیش‌فاکتور خرید محصول</h2>
@@ -184,8 +306,8 @@
                                         <span className="font-bold text-indigo-600 text-base">{selectedProduct.price.toLocaleString()} تومان</span>
                                     </div>
                                     <div className="flex justify-between border-t pt-2 text-xs text-slate-400">
-                                        <span>اتصال به درگاه بانکی:</span>
-                                        <span className="font-mono">BluPay (فعال)</span>
+                                        <span>درگاه آنلاین:</span>
+                                        <span className="font-mono text-emerald-600 font-bold">شاپرک (Shatarak.ir)</span>
                                     </div>
                                 </div>
                                 <button onClick={() => startPayment(selectedProduct)} className="w-full bg-indigo-600 text-white font-bold py-3 rounded-xl shadow-md hover:bg-indigo-700 transition">
@@ -194,44 +316,40 @@
                             </div>
                         )}
 
-                        {view === 'gateway_screen' && selectedProduct && (
-                            <div className="max-w-md mx-auto my-8 p-6 bg-slate-900 text-white rounded-3xl border border-slate-700 shadow-2xl">
-                                <div className="flex justify-between items-center border-b border-slate-700 pb-3 mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                                        <h3 className="text-sm font-bold tracking-wide">درگاه پرداخت الکترونیک BLU</h3>
-                                    </div>
-                                    <span className="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-400 font-mono">Merchant ID Connected</span>
-                                </div>
-                                
-                                <div className="bg-slate-800/60 p-4 rounded-2xl mb-4 text-xs space-y-2 border border-slate-700/50">
-                                    <div className="flex justify-between"><span>کد مرچنت پذیرنده:</span><span className="font-mono text-amber-400">{state.merchantId}</span></div>
-                                    <div className="flex justify-between"><span>مبلغ نهایی تراکنش:</span><span className="font-bold text-emerald-400 text-sm">{selectedProduct.price.toLocaleString()} تومان</span></div>
-                                    <div className="flex justify-between"><span>نام محصول:</span><span>{selectedProduct.title}</span></div>
-                                </div>
+                        {/* شبیه‌ساز انتقال به شاپرک طبق الزامات اینماد */}
+                        {view === 'gateway_redirect' && selectedProduct && (
+                            <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl border shadow-xl text-center">
+                                <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                                <h3 className="font-bold text-lg mb-2">در حال انتقال به درگاه امن شاپرک...</h3>
+                                <p className="text-xs text-slate-500 mb-6">شما جهت پرداخت مبلغ {selectedProduct.price.toLocaleString()} تومان به شبکه پرداخت شاپرک متصل می‌شوید.</p>
+                                <button onClick={completePaymentSuccess} className="bg-emerald-600 text-white px-6 py-2.5 rounded-xl font-bold text-xs">
+                                    [شبیه‌سازی] بازگشت موفق از درگاه
+                                </button>
+                            </div>
+                        )}
 
-                                <form onSubmit={(e) => { e.preventDefault(); completePaymentSuccess(); }} className="space-y-3.5 text-xs">
-                                    <div>
-                                        <label className="block text-slate-400 mb-1">شماره ۱۶ رقمی کارت بانکی:</label>
-                                        <input required placeholder="---- ---- ---- ----" maxLength="19" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-base font-bold text-white tracking-widest outline-none focus:border-blue-500" />
+                        {/* صفحات قانونی الزامی اینماد */}
+                        {view === 'rules' && (
+                            <div className="max-w-4xl mx-auto p-8 bg-white rounded-3xl border shadow-sm my-8 text-sm leading-relaxed space-y-4">
+                                <h1 className="text-xl font-bold border-b pb-3 mb-4">قوانین و مقررات آکادمی هوش برتر</h1>
+                                <p><strong>۱. شرایط استفاده:</strong> تمام محتواها و فایل‌های دانلودی ارائه‌شده در این سایت متعلق به آکادمی هوش برتر است و هرگونه بازنشر یا فروش مجدد آن پیگرد قانونی دارد.</p>
+                                <p><strong>۲. تحویل محصول:</strong> تمام محصولات به صورت فایل الکترونیکی و دانلودی هستند و بلافاصله پس از پرداخت در پنل کاربری قابل دریافت خواهند بود.</p>
+                                <p><strong>۳. سیاست بازگشت وجه:</strong> با توجه به دانلودی بودن محتوا، بازگشت وجه تنها در صورت وجود نقص در فایل یا عدم تطابق با توضیحات محصول امکان‌پذیر است.</p>
+                            </div>
+                        )}
+
+                        {view === 'contact' && (
+                            <div className="max-w-4xl mx-auto p-8 bg-white rounded-3xl border shadow-sm my-8">
+                                <h1 className="text-xl font-bold border-b pb-3 mb-6">ارتباط با ما</h1>
+                                <div className="grid md:grid-cols-2 gap-6 text-sm">
+                                    <div className="space-y-3">
+                                        <p><strong>صاحب امتیاز:</strong> محمد معين سليم</p>
+                                        <p><strong>شماره پشتیبانی:</strong> 021XXXXXXXX / 09123456789</p>
+                                        <p><strong>ایمیل:</strong> info@academy.ir</p>
+                                        <p><strong>آدرس دفتر مرکزی:</strong> تهران، خیابان اصلی، پلاک ۱</p>
+                                        <p><strong>ساعات پاسخگویی:</strong> شنبه تا چهارشنبه ۹ الی ۱۷</p>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label className="block text-slate-400 mb-1">رمز دوم (اینترنتی یا پویا):</label>
-                                            <input required type="password" placeholder="••••••" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-sm font-bold outline-none focus:border-blue-500" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-slate-400 mb-1">کد امنیتی CVV2:</label>
-                                            <input required placeholder="•••" maxLength="4" className="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-sm font-bold outline-none focus:border-blue-500" />
-                                        </div>
-                                    </div>
-                                    <button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black py-3 rounded-xl text-sm shadow-xl mt-2 tracking-wide hover:opacity-95 transition">
-                                        ✓ پرداخت موفقیت‌آمیز و تکمیل سفارش
-                                    </button>
-                                    <button type="button" onClick={() => { setView('school'); showToast('تراکنش توسط کاربر لغو شد.', 'error'); }} className="w-full bg-slate-800 hover:bg-slate-700 text-slate-400 py-2 rounded-xl text-[11px] transition">
-                                        انصراف و بازگشت به آکادمی
-                                    </button>
-                                </form>
+                                </div>
                             </div>
                         )}
 
@@ -244,53 +362,79 @@
                                         <div key={o.id} className="p-4 border rounded-xl flex justify-between items-center bg-slate-50/50">
                                             <div>
                                                 <p className="font-bold text-slate-800 text-sm">{o.title}</p>
-                                                <span className="text-[11px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-mono mt-1 inline-block">نام فایل اصلی: {o.fileName}</span>
+                                                <span className="text-[11px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-mono mt-1 inline-block">نام فایل: {o.fileName}</span>
                                             </div>
-                                            <button onClick={() => showToast(`دانلود فایل ${o.fileName} با موفقیت آغاز شد`)} className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-emerald-700 transition">
-                                                ⬇️ دریافت فایل مستقیم
+                                            <button onClick={() => showToast(`دانلود فایل ${o.fileName} آغاز شد`)} className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm hover:bg-emerald-700 transition">
+                                                ⬇️ دریافت مستقیم
                                             </button>
                                         </div>
                                     ))}</div>
                                 }
                             </div>
                         )}
-                        
+
                         {view === 'admin_dashboard' && state.currentUser?.role === 'admin' && (
-                            <div className="max-w-7xl mx-auto px-4 py-8"><div className="bg-slate-900 text-white p-6 rounded-3xl mb-8"><h2>🛡️ پنل مدیریت ارشد آکادمی هوش برتر</h2></div>
+                            <div className="max-w-7xl mx-auto px-4 py-8">
+                                <div className="bg-slate-900 text-white p-6 rounded-3xl mb-8"><h2>🛡️ پنل مدیریت ارشد آکادمی هوش برتر</h2></div>
                                 <div className="space-y-6">
-                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">👥 کاربران واقعی ثبت‌نام شده</h3><input placeholder="جستجو بر اساس نام یا شماره..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="p-2 border rounded-xl mb-3 text-xs w-full outline-none focus:ring-1 focus:ring-indigo-500" /><table className="w-full text-right text-xs"><thead className="bg-slate-50"><tr><th className="p-2">نام</th><th className="p-2">نام کاربری</th><th className="p-2">شماره تماس</th></tr></thead><tbody className="divide-y">{state.users.filter(u => u.name.includes(searchTerm) || u.phone.includes(searchTerm)).map(u => <tr key={u.id}><td>{u.name}</td><td>{u.username}</td><td className="font-bold text-amber-700">{u.phone}</td></tr>)}</tbody></table></div>
-                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">🔑 صندوق دریافت کدهای تأیید (OTP)</h3>{state.otpRequests.map(r => <div key={r.id} className="p-2 border rounded flex justify-between text-xs my-1"><span>{r.phone} - {r.type === 'signup' ? 'ثبت‌نام' : 'بازیابی'}</span><span className="font-bold text-indigo-600 font-mono text-sm">{r.code}</span><button onClick={() => showToast(`کد ${r.code} مجدداً ارسال شد`)} className="bg-indigo-600 text-white px-2 py-1 rounded">ارسال مجدد</button></div>)}</div>
-                                    
-                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">📚 افزودن محصول درسی (چهارم تا نهم)</h3>
-                                        <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, schoolPacks: [{ id: 's' + Date.now(), title: f.get('title'), grade: f.get('grade'), subject: f.get('subject'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'فایل.pdf' }, ...prev.schoolPacks] })); showToast('پک درسی با موفقیت ثبت شد.'); e.target.reset(); }} className="grid grid-cols-2 gap-3 text-xs">
-                                            <input name="title" placeholder="عنوان پک (مثال: پکیج شب امتحان ریاضی)" required className="p-2.5 border rounded-xl" />
-                                            <input name="subject" placeholder="درس (مثال: علوم)" required className="p-2.5 border rounded-xl" />
-                                            <input name="price" type="number" placeholder="قیمت (تومان)" required className="p-2.5 border rounded-xl" />
-                                            <select name="grade" className="border p-2.5 rounded-xl bg-white font-bold">
-                                                <option>پایه چهارم</option><option>پایه پنجم</option><option>پایه ششم</option><option>پایه هفتم</option><option>پایه هشتم</option><option>پایه نهم</option>
-                                            </select>
-                                            <input name="desc" placeholder="توضیحات کوتاه پک" required className="p-2.5 border rounded-xl col-span-2" />
-                                            <div className="col-span-2 border border-dashed border-emerald-300 p-3 rounded-xl bg-emerald-50/20"><label className="block font-bold text-emerald-800 mb-1">📎 انتخاب فایل مستقیم محصول:</label><input type="file" required className="text-[11px]" /></div>
-                                            <button type="submit" className="col-span-2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl shadow">➕ ثبت و انتشار پک مدرسه</button>
-                                        </form>
+                                    <div className="bg-white p-6 rounded-2xl border">
+                                        <h3 className="font-bold mb-3">👥 کاربران ثبت‌نام شده</h3>
+                                        <input placeholder="جستجو..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="p-2 border rounded-xl mb-3 text-xs w-full outline-none" />
+                                        <table className="w-full text-right text-xs"><thead className="bg-slate-50"><tr><th className="p-2">نام</th><th className="p-2">نام کاربری</th><th className="p-2">شماره تماس</th></tr></thead><tbody className="divide-y">{state.users.filter(u => u.name.includes(searchTerm) || u.phone.includes(searchTerm)).map(u => <tr key={u.id}><td>{u.name}</td><td>{u.username}</td><td className="font-bold text-amber-700">{u.phone}</td></tr>)}</tbody></table>
                                     </div>
-                                    
-                                    <div className="bg-white p-6 rounded-2xl border"><h3 className="font-bold mb-3">🤖 افزودن محصول هوش مصنوعی / آموزش InShot</h3>
-                                        <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, aiPacks: [{ id: 'a' + Date.now(), title: f.get('title'), category: f.get('category'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'پک.zip' }, ...prev.aiPacks] })); showToast('محصول هوش مصنوعی ثبت شد.'); e.target.reset(); }} className="grid grid-cols-2 gap-3 text-xs">
-                                            <input name="title" placeholder="عنوان دوره یا پک پرامپت" required className="p-2.5 border rounded-xl" />
+                                    <div className="bg-white p-6 rounded-2xl border">
+                                        <h3 className="font-bold mb-3">📚 افزودن محصول درسی</h3>
+                                        <form onSubmit={(e) => { e.preventDefault(); const f = new FormData(e.target); const fileInput = e.target.querySelector('input[type="file"]'); setState(prev => ({ ...prev, schoolPacks: [{ id: 's' + Date.now(), title: f.get('title'), grade: f.get('grade'), subject: f.get('subject'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: fileInput.files[0] ? fileInput.files[0].name : 'فایل.pdf' }, ...prev.schoolPacks] })); showToast('پک ثبت شد.'); e.target.reset(); }} className="grid grid-cols-2 gap-3 text-xs">
+                                            <input name="title" placeholder="عنوان پک" required className="p-2.5 border rounded-xl" />
+                                            <input name="subject" placeholder="درس" required className="p-2.5 border rounded-xl" />
                                             <input name="price" type="number" placeholder="قیمت (تومان)" required className="p-2.5 border rounded-xl" />
-                                            <select name="category" className="border p-2.5 rounded-xl bg-white font-bold col-span-2">
-                                                <option>پرامپت</option><option>دوره AI</option><option>آموزش InShot</option>
-                                            </select>
-                                            <input name="desc" placeholder="توضیحات دوره/پرامپت" required className="p-2.5 border rounded-xl col-span-2" />
-                                            <div className="col-span-2 border border-dashed border-purple-300 p-3 rounded-xl bg-purple-50/20"><label className="block font-bold text-purple-800 mb-1">📎 انتخاب فایل یا پکیج ویدیویی محصول:</label><input type="file" required className="text-[11px]" /></div>
-                                            <button type="submit" className="col-span-2 bg-purple-600 text-white font-bold py-2.5 rounded-xl shadow">➕ ثبت و انتشار محصول هوش مصنوعی</button>
+                                            <select name="grade" className="border p-2.5 rounded-xl bg-white font-bold"><option>پایه چهارم</option><option>پایه پنجم</option><option>پایه ششم</option><option>پایه هفتم</option><option>پایه هشتم</option><option>پایه نهم</option></select>
+                                            <input name="desc" placeholder="توضیحات" required className="p-2.5 border rounded-xl col-span-2" />
+                                            <div className="col-span-2 border border-dashed p-3 rounded-xl"><input type="file" required className="text-[11px]" /></div>
+                                            <button type="submit" className="col-span-2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl">➕ انتشار محصول</button>
                                         </form>
                                     </div>
                                 </div>
                             </div>
                         )}
                     </div>
+
+                    {/* فوتر استاندارد مطابقت‌یافته با اینماد */}
+                    <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 mt-16 text-xs">
+                        <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8">
+                            <div className="space-y-3">
+                                <h3 className="text-white font-bold text-sm">آکادمی هوش برتر</h3>
+                                <p className="leading-relaxed text-slate-400">مرکز تخصصی فروش فایل‌های آموزشی، جزوات شب امتحان و دوره‌های هوش مصنوعی و ساخت محتوا.</p>
+                            </div>
+                            <div>
+                                <h4 className="text-white font-bold mb-3">دسترسی سریع</h4>
+                                <ul className="space-y-2">
+                                    <li><button onClick={() => setView('school')} className="hover:text-white">دروس مدرسه</button></li>
+                                    <li><button onClick={() => setView('ai')} className="hover:text-white">دوره‌های AI</button></li>
+                                    <li><button onClick={() => setView('rules')} className="hover:text-white">قوانین و مقررات</button></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="text-white font-bold mb-3">اطلاعات تماس</h4>
+                                <ul className="space-y-2 text-slate-400">
+                                    <li>صاحب امتیاز: محمد معين سليم</li>
+                                    <li>تلفن پشتیبانی: ۰۲۱-۱۲۳۴۵۶۷۸</li>
+                                    <li>پاسخگویی: ۹ الی ۱۷</li>
+                                </ul>
+                            </div>
+                            {/* محل قرارگیری لوگوی اینماد */}
+                            <div className="flex flex-col items-center justify-center bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
+                                <span className="text-[10px] text-slate-400 mb-2">نماد اعتماد الکترونیکی</span>
+                                <div className="w-20 h-20 bg-slate-700/50 rounded-xl flex items-center justify-center border border-dashed border-slate-500">
+                                    <span className="text-[10px] text-center text-slate-400">کد نماد اینماد</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="border-t border-slate-800 text-center py-4 text-[11px] text-slate-500">
+                            تمامی حقوق مادی و معنوی این وب‌سایت متعلق به آکادمی هوش برتر می‌باشد.
+                        </div>
+                    </footer>
+
                     {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
                 </div>
             );
