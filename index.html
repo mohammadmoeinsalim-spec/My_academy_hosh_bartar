@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- کد متاتگ احراز هویت اینماد -->
     <title>آکادمی هوش برتر</title>
-    <meta name="enamad" content="27198983" />
+    <!-- متاتگ اینماد دقیقاً مطابق درخواست سامانه -->
+    <meta name="enamad" content="24028517" />
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -68,7 +68,7 @@
         function App() {
             const [state, setState] = useState(() => { 
                 try { 
-                    const local = localStorage.getItem('site_app_data_v7'); 
+                    const local = localStorage.getItem('site_app_data_v8'); 
                     return local ? JSON.parse(local) : INITIAL_STATE; 
                 } catch (e) { 
                     console.warn("خطا در خواندن LocalStorage:", e);
@@ -79,7 +79,6 @@
             const [view, setView] = useState('welcome'); 
             const [toast, setToast] = useState(null); 
             const [pendingSignup, setPendingSignup] = useState(null); 
-            const [pendingResetPhone, setPendingResetPhone] = useState(''); 
             const [selectedProduct, setSelectedProduct] = useState(null); 
             const [searchTerm, setSearchTerm] = useState('');
             const [schoolGradeFilter, setSchoolGradeFilter] = useState('همه');
@@ -87,7 +86,7 @@
             
             useEffect(() => { 
                 try { 
-                    localStorage.setItem('site_app_data_v7', JSON.stringify(state)); 
+                    localStorage.setItem('site_app_data_v8', JSON.stringify(state)); 
                 } catch (e) { 
                     console.error("خطا در ذخیره LocalStorage:", e); 
                 } 
@@ -98,7 +97,6 @@
             const ADMIN_USER = "محمد معين سليم صاحب اینجا هست"; 
             const ADMIN_PASS = "M9!vR2#qL7@xP4$z";
 
-            // تابع تبدیل فایل به فرمت قابل ذخیره و دانلود (Base64)
             const handleFileUpload = (file) => {
                 return new Promise((resolve, reject) => {
                     if (!file) { resolve({ name: '', data: '' }); return; }
@@ -134,10 +132,6 @@
                     setState(prev => ({ ...prev, users: [...prev.users, newUser], currentUser: newUser })); 
                     setPendingSignup(null); 
                     setView('welcome_user');
-                } else if (pendingResetPhone) {
-                    const req = state.otpRequests.find(r => r.phone === pendingResetPhone && r.type === 'reset');
-                    if (req && req.code === inputCode) setView('new_password'); 
-                    else showToast('کد اشتباه است.', 'error');
                 } else { 
                     showToast('کد اشتباه است.', 'error'); 
                 }
@@ -195,8 +189,9 @@
                     a.href = order.fileData;
                     a.download = order.fileName;
                     a.click();
+                    showToast('دانلود فایل آغاز شد');
                 } else {
-                    showToast(`دانلود فایل ${order.fileName} آغاز شد`);
+                    showToast('فایلی برای دانلود مستقیم موجود نیست.', 'error');
                 }
             };
 
@@ -236,7 +231,6 @@
                             </div>
                         </header>
                         
-                        {/* بخش‌های اصلی سایت */}
                         {view === 'welcome' && (
                             <div className="max-w-5xl mx-auto px-4 py-16 text-center">
                                 <h1 className="text-4xl font-black text-slate-900 mb-6">به مرکز جامع آموزش و هوش مصنوعی خوش آمدید ✨</h1>
@@ -351,7 +345,6 @@
                             </div>
                         )}
 
-                        {/* شبیه‌ساز درگاه شاپرک */}
                         {view === 'gateway_redirect' && selectedProduct && (
                             <div className="max-w-md mx-auto my-12 p-8 bg-white rounded-3xl border shadow-xl text-center">
                                 <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -363,7 +356,6 @@
                             </div>
                         )}
 
-                        {/* قوانین و مقررات */}
                         {view === 'rules' && (
                             <div className="max-w-4xl mx-auto p-8 bg-white rounded-3xl border shadow-sm my-8 text-sm leading-relaxed space-y-4">
                                 <h1 className="text-xl font-bold border-b pb-3 mb-4">قوانین و مقررات آکادمی هوش برتر</h1>
@@ -393,7 +385,6 @@
                             </div>
                         )}
 
-                        {/* پنل مدیریت ارشد */}
                         {view === 'admin_dashboard' && state.currentUser?.role === 'admin' && (
                             <div className="max-w-7xl mx-auto px-4 py-8">
                                 <div className="bg-slate-900 text-white p-6 rounded-3xl mb-8"><h2>🛡️ پنل مدیریت ارشد آکادمی هوش برتر</h2></div>
@@ -408,7 +399,6 @@
                                         {state.otpRequests.map(r => <div key={r.id} className="p-2 border rounded flex justify-between text-xs my-1"><span>{r.phone} - {r.type === 'signup' ? 'ثبت‌نام' : 'بازیابی'}</span><span className="font-bold text-indigo-600 font-mono text-sm">{r.code}</span><button onClick={() => showToast(`کد ${r.code} مجدداً ارسال شد`)} className="bg-indigo-600 text-white px-2 py-1 rounded">ارسال مجدد</button></div>)}
                                     </div>
 
-                                    {/* ثبت و آپلود فایل محصول مدرسه */}
                                     <div className="bg-white p-6 rounded-2xl border">
                                         <h3 className="font-bold mb-3">📚 افزودن محصول درسی + آپلود فایل</h3>
                                         <form onSubmit={async (e) => { 
@@ -420,7 +410,7 @@
                                                 ...prev, 
                                                 schoolPacks: [{ id: 's' + Date.now(), title: f.get('title'), grade: f.get('grade'), subject: f.get('subject'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: uploadedFile.name || 'فایل.pdf', fileData: uploadedFile.data }, ...prev.schoolPacks] 
                                             })); 
-                                            showToast('پک درسی به همراه فایل با موفقیت اضافه شد.'); 
+                                            showToast('پک درسی با موفقیت اضافه شد.'); 
                                             e.target.reset(); 
                                         }} className="grid grid-cols-2 gap-3 text-xs">
                                             <input name="title" placeholder="عنوان پک (مثال: پکیج شب امتحان ریاضی)" required className="p-2.5 border rounded-xl" />
@@ -438,7 +428,6 @@
                                         </form>
                                     </div>
                                     
-                                    {/* ثبت و آپلود فایل محصول هوش مصنوعی */}
                                     <div className="bg-white p-6 rounded-2xl border">
                                         <h3 className="font-bold mb-3">🤖 افزودن محصول هوش مصنوعی / آموزش + آپلود فایل</h3>
                                         <form onSubmit={async (e) => { 
@@ -450,7 +439,7 @@
                                                 ...prev, 
                                                 aiPacks: [{ id: 'a' + Date.now(), title: f.get('title'), category: f.get('category'), price: parseInt(f.get('price')), desc: f.get('desc'), fileName: uploadedFile.name || 'پک.zip', fileData: uploadedFile.data }, ...prev.aiPacks] 
                                             })); 
-                                            showToast('محصول هوش مصنوعی به همراه فایل ذخیره شد.'); 
+                                            showToast('محصول هوش مصنوعی ذخیره شد.'); 
                                             e.target.reset(); 
                                         }} className="grid grid-cols-2 gap-3 text-xs">
                                             <input name="title" placeholder="عنوان دوره یا پک پرامپت" required className="p-2.5 border rounded-xl" />
@@ -471,7 +460,6 @@
                         )}
                     </div>
 
-                    {/* فوتر به همراه لوگوی رسمی و فعال اینماد */}
                     <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 mt-16 text-xs">
                         <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="space-y-3">
@@ -487,7 +475,6 @@
                                 </ul>
                             </div>
                             
-                            {/* جایگاه رسمی کد و آیکون اینماد */}
                             <div className="flex flex-col items-center justify-center bg-white p-3 rounded-2xl shadow-md border border-slate-200">
                                 <span className="text-[10px] font-bold text-slate-600 mb-2">نماد اعتماد الکترونیکی</span>
                                 <a referrerpolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=27198983&Code=27198983" className="cursor-pointer">
